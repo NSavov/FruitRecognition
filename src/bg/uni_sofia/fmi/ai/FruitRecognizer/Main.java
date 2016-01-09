@@ -1,9 +1,15 @@
 package bg.uni_sofia.fmi.ai.FruitRecognizer;
 
+import bg.uni_sofia.fmi.ai.Contour.ContourRecognizer;
+import bg.uni_sofia.fmi.ai.ImageProcessor.ImageProcessor;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -20,6 +26,8 @@ public class Main extends Application {
         primaryStage.setTitle("Hello World");
         primaryStage.setScene(new Scene(root, 300, 275));
         primaryStage.show();
+
+        ContourRecognizer contourRecognizer = new ContourRecognizer();
 
         System.out.println("Welcome to OpenCV " + Core.VERSION);
         Mat m = new Mat(5, 10, CvType.CV_8UC1, new Scalar(0));
