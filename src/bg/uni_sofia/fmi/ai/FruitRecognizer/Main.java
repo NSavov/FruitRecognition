@@ -15,6 +15,8 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
+import org.opencv.videoio.VideoCapture;
+import org.opencv.videoio.Videoio;
 
 public class Main extends Application {
 
@@ -26,6 +28,7 @@ public class Main extends Application {
         primaryStage.setTitle("Hello World");
         primaryStage.setScene(new Scene(root, 300, 275));
         primaryStage.show();
+
 
         ContourRecognizer contourRecognizer = new ContourRecognizer();
 
@@ -41,6 +44,11 @@ public class Main extends Application {
 
     }
 
+
+    private void capture()
+    {
+
+    }
 
     public static void main(String[] args) {
         launch(args);

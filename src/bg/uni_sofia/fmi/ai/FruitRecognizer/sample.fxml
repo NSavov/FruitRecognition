@@ -11,8 +11,10 @@
         <ScrollPane hbarPolicy="AS_NEEDED" vbarPolicy="AS_NEEDED">
             <content>
              <ImageView fx:id="imageView" GridPane.columnIndex="0" GridPane.rowIndex="0"
-                   GridPane.columnSpan="1"/>
+                   GridPane.columnSpan="1" />
             </content>
         </ScrollPane>
+        <Button fx:id="cameraButton" text="camera" GridPane.columnIndex="0" GridPane.rowIndex="1"
+                GridPane.columnSpan="1"/>
     </children>
 </GridPane>
