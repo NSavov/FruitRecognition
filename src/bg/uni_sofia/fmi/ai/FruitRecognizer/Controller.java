@@ -25,14 +25,15 @@ public class Controller implements Initializable {
     @FXML
     private Button cameraButton;
 
+
     Thread cameraThread;
     String resourceImagePath;
+    ContourRecognizer contourRecognizer;
 
     private void startImageMode()
     {
-        Mat mat = ImageProcessor.openResource(resourceImagePath);
 
-        ContourRecognizer.findContour(mat);
+        Mat mat = contourRecognizer.findContour(new File(resourceImagePath));
         Image image = ImageProcessor.matToImage(mat);
         imageView.setImage(image);
     }
@@ -40,6 +41,7 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
+        contourRecognizer = new ContourRecognizer();
         final Task<Void> task = new Task<Void>() {
             @Override
             public Void call() throws Exception {
@@ -48,13 +50,13 @@ public class Controller implements Initializable {
                 Image tempImage;
 
                 VideoCapture capture = new VideoCapture(0);
-                capture.set(Videoio.CAP_PROP_FRAME_WIDTH,320);
-                capture.set(Videoio.CAP_PROP_FRAME_HEIGHT,240);
+                capture.set(Videoio.CAP_PROP_FRAME_WIDTH,1024);
+                capture.set(Videoio.CAP_PROP_FRAME_HEIGHT,768);
                 if( capture.isOpened()) {
                     while (!Thread.currentThread().isInterrupted()) {
                         capture.read(webcamMatImage);
                         if (!webcamMatImage.empty()) {
-                            tempImage = ImageProcessor.matToImage(ContourRecognizer.findContour(webcamMatImage));//imageProcessor.toBufferedImage(webcamMatImage);
+                            tempImage = ImageProcessor.matToImage(contourRecognizer.findContour(webcamMatImage));//imageProcessor.toBufferedImage(webcamMatImage);
                             imageView.setImage(tempImage);
 //                    imageLabel.setIcon(imageIcon);
 //                    frame.pack(); //this will resize the window to fit the image
@@ -84,7 +86,8 @@ public class Controller implements Initializable {
                 startImageMode();
             }
         }});
-        resourceImagePath = "apple.jpeg";
+        resourceImagePath = "./resources/apple.jpg";
+        contourRecognizer.train(new File("./resources/dataset"));
         startImageMode();
     }
 }

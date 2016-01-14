@@ -6,20 +6,15 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import org.opencv.core.*;
-import org.opencv.imgproc.Imgproc;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
 import org.opencv.ml.Ml;
-import org.opencv.videoio.VideoCapture;
-import org.opencv.videoio.Videoio;
 import org.opencv.ml.KNearest;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
 
 public class Main extends Application {
 
@@ -27,14 +22,14 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("layout_main.fxml"));
         primaryStage.setTitle("Hello World");
         primaryStage.setScene(new Scene(root, 300, 275));
         primaryStage.show();
 
 
         ContourRecognizer contourRecognizer = new ContourRecognizer();
-        Mat image = ImageProcessor.openImageFile("./resources/apple.jpg");;//Imgcodecs.imread("./resources/Golden_01_1.JPG", Imgproc.COLOR_BGR2GRAY);
+        Mat image = ImageProcessor.openSingleImage(new File("./resources/apple.JPG"));;//Imgcodecs.imread("./resources/Golden_01_1.JPG", Imgproc.COLOR_BGR2GRAY);
         Mat imageHSV = new Mat(image.size(), CvType.CV_8U);
         Mat imageBlurr = new Mat(image.size(), CvType.CV_8U);
         Mat imageA = new Mat(image.size(), CvType.CV_8UC3);
