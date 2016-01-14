@@ -40,7 +40,7 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        Task<Void> task = new Task<Void>() {
+        final Task<Void> task = new Task<Void>() {
             @Override
             public Void call() throws Exception {
                 ImageProcessor imageProcessor = new ImageProcessor();
