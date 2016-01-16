@@ -59,7 +59,9 @@ public class ContourRecognizer {
         }
     }
 
-    public Mat findContour(Mat img)
+    Mat img;
+
+    public List<MatOfPoint> findContours(Mat img)
     {
         List<MatOfPoint> result = new ArrayList<>();
 //        try {
@@ -82,7 +84,7 @@ public class ContourRecognizer {
         for(int i=0 ; i<size; i++)
         {
             double value = values.get(i);
-            if(values.get(i)<0.1)
+            if(values.get(i)<0.2)
                 result.add(contours.get(i));
 
         }
@@ -96,14 +98,21 @@ public class ContourRecognizer {
 
         drawContours(mat, result);
         Imgcodecs.imwrite("./output/test3.png",mat);
-        return mat;
+
+        this.img = mat;
+        return result;
     }
 
-    public Mat findContour(File file)
+    public Mat getImage()
+    {
+        return img;
+    }
+
+    public List<MatOfPoint> findContours(File file)
     {
         Mat img = ImageProcessor.openSingleImage(file);
 
-        return findContour(img);
+        return findContours(img);
     }
 
     public int findLargestContourContArea(List<MatOfPoint> contours)

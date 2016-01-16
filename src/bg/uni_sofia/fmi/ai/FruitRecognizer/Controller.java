@@ -33,7 +33,8 @@ public class Controller implements Initializable {
     private void startImageMode()
     {
 
-        Mat mat = contourRecognizer.findContour(new File(resourceImagePath));
+        contourRecognizer.findContours(new File(resourceImagePath));
+        Mat mat = contourRecognizer.getImage();
         Image image = ImageProcessor.matToImage(mat);
         imageView.setImage(image);
     }
@@ -56,7 +57,8 @@ public class Controller implements Initializable {
                     while (!Thread.currentThread().isInterrupted()) {
                         capture.read(webcamMatImage);
                         if (!webcamMatImage.empty()) {
-                            tempImage = ImageProcessor.matToImage(contourRecognizer.findContour(webcamMatImage));//imageProcessor.toBufferedImage(webcamMatImage);
+                            contourRecognizer.findContours(webcamMatImage);
+                            tempImage = ImageProcessor.matToImage(contourRecognizer.getImage());//imageProcessor.toBufferedImage(webcamMatImage);
                             imageView.setImage(tempImage);
 //                    imageLabel.setIcon(imageIcon);
 //                    frame.pack(); //this will resize the window to fit the image

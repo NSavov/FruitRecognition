@@ -81,7 +81,7 @@ public class ImageProcessor {
 //            while (true) {
 //                capture.read(webcamMatImage);
 //                if (!webcamMatImage.empty()) {
-//                    tempImage = ImageProcessor.matToImage(ContourRecognizer.findContour(webcamMatImage));//imageProcessor.toBufferedImage(webcamMatImage);
+//                    tempImage = ImageProcessor.matToImage(ContourRecognizer.findContours(webcamMatImage));//imageProcessor.toBufferedImage(webcamMatImage);
 ////                    imageLabel.setIcon(imageIcon);
 ////                    frame.pack(); //this will resize the window to fit the image
 //                } else {
