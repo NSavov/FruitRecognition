@@ -23,6 +23,7 @@ public class ContourRecognizer {
 
     private void train(List<Mat> images)
     {
+        int i=0;
         List<MatOfPoint> contours;
         for(Mat img : images)
         {
@@ -31,6 +32,12 @@ public class ContourRecognizer {
             if(ind < 0)
                 continue;
 
+            ArrayList<MatOfPoint> test = new ArrayList<>();
+            test.add(contours.get(ind));
+            Mat mat = img.clone();
+            drawContours(mat, test);
+            Imgcodecs.imwrite("./output/training/"+String.valueOf(i) + ".jpg", mat);
+            i++;
             templates.add(contours.get(ind));
 
         }
@@ -63,8 +70,8 @@ public class ContourRecognizer {
         if(img == null)
             return null;
 
-        List<MatOfPoint> contours = getAllContours(img);
-        filter(contours, 50);
+        List<MatOfPoint> contours = getAllContours(img.clone());
+        filter(contours, 100);
 
 //        filter(contours, 0);
 
@@ -80,10 +87,16 @@ public class ContourRecognizer {
 
         }
 
-        drawContours(img, result);
+        Mat mat = img.clone();
+//        ArrayList<MatOfPoint> test = new ArrayList<>();
+//        test.add(contours.get(findLargestContour(contours)));
+        drawContours(img, contours);
 //        Imgproc.drawContours(img, contours, 0, new Scalar(0, 0, 255));
         Imgcodecs.imwrite("./output/test2.png",img);
-        return img;
+
+        drawContours(mat, result);
+        Imgcodecs.imwrite("./output/test3.png",mat);
+        return mat;
     }
 
     public Mat findContour(File file)
@@ -93,7 +106,7 @@ public class ContourRecognizer {
         return findContour(img);
     }
 
-    public int findLargestContour(List<MatOfPoint> contours)
+    public int findLargestContourContArea(List<MatOfPoint> contours)
     {
         double maxArea = 0;
         int index = -1;
@@ -109,33 +122,73 @@ public class ContourRecognizer {
         return index;
     }
 
+    public int findLargestContour(List<MatOfPoint> contours)
+    {
+        double maxArea = 0;
+        int index = -1;
+        for(int i=0; i< contours.size();i++){
+
+            double area = (Imgproc.boundingRect(contours.get(i))).area();
+            if ( area > maxArea ){
+                index = i;
+                maxArea = area;
+            }
+        }
+
+        return index;
+    }
+
     public void filter(List<MatOfPoint> contours, int area)
     {
         for(int i=0; i< contours.size();i++){
-
-            if (Imgproc.contourArea(contours.get(i)) < area ){
+            double contArea = (Imgproc.boundingRect(contours.get(i))).area();
+//            if (Imgproc.contourArea(contours.get(i)) < area ){
+            if (contArea < area ){
                 contours.remove(i);
                 i--;
             }
         }
     }
 
+    int i=0;
     public List<MatOfPoint> getAllContours(Mat mat)
     {
+
         Mat image = mat.clone();
         Mat imageHSV = new Mat();
         Mat imageBlurr = new Mat();
         Mat imageA = new Mat();
         Imgproc.cvtColor(image, imageHSV, Imgproc.COLOR_BGR2GRAY);
-//        Imgproc.GaussianBlur(imageHSV, imageBlurr, new Size(5,5), 0);
-//        Imgproc.adaptiveThreshold(imageBlurr, imageA, 255,Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY,7, 5);
-//        Imgproc.threshold(imageHSV,imageA,50,255, Imgproc.THRESH_BINARY_INV);
-        Imgproc.Canny(imageHSV, imageA, 10, 20, 3, false );
+        Imgproc.medianBlur(imageHSV, imageHSV, 9);
+        Mat gray0 = new Mat(imageHSV.size(), CvType.CV_8U);
+//        Core.mixChannels(imageHSV, gray0, );
 
-        Imgcodecs.imwrite("./output/test1.jpeg",imageA);
+//        Imgproc.GaussianBlur(imageHSV, imageHSV, new Size(5,5), 0);
+//        Imgproc.adaptiveThreshold(imageBlurr, imageA, 255,Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY,7, 0);
+//        Imgproc.threshold(imageHSV,imageA,15,255, Imgproc.THRESH_BINARY);
+//        Imgproc.Canny(imageHSV, imageA, 70, 150, 3, true );
+
+        Imgproc.Canny(imageHSV, imageA, 10, 65, 3, true );
+
+        Imgproc.dilate(imageA, imageA, new Mat(), new Point(-1, -1), 2);//Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2)));
+        Imgproc.erode(imageA, imageA, new Mat(),new Point(-1, -1), 2);// Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2,2)));
+
+//        Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(1, 1));
+//        Imgproc.morphologyEx(imageHSV, imageA, Imgproc.MORPH_OPEN, element);
+//
+//        Imgproc.morphologyEx(imageA, imageA, Imgproc.MORPH_ERODE, element);
+
+
+//        Imgproc.adaptiveThreshold(imageA, imageA, 255,Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY,7, 0);
+//        Imgproc.threshold(imageA,imageA,50,255, Imgproc.THRESH_BINARY);
+        Imgcodecs.imwrite("./output/test1" +".jpeg",imageA);
+
+
+
+        i++;
 
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-        Imgproc.findContours(imageA, contours, new Mat(), Imgproc.RETR_EXTERNAL ,Imgproc.CHAIN_APPROX_NONE);
+        Imgproc.findContours(imageA, contours, new Mat(), Imgproc.RETR_LIST ,Imgproc.CHAIN_APPROX_NONE);
 
         Imgcodecs.imwrite("./output/test2.png",image);
 
@@ -159,7 +212,7 @@ public class ContourRecognizer {
 //                    Mat mapMatrix = Imgproc.getRotationMatrix2D(centerOfRotation, degrees, 1);
 //                    Imgproc.warpAffine(rotatedContour, rotatedContour, mapMatrix, rotatedContour.size(), Imgproc.INTER_LINEAR);
                     // you could also try Cosine Similarity, or even matchedTemplate here.
-                    tempValue = Imgproc.matchShapes(contour, template, Imgproc.CV_CONTOURS_MATCH_I3, 0);
+                    tempValue = Imgproc.matchShapes(contour, template, Imgproc.CV_CONTOURS_MATCH_I2, 0);
 
                     if (tempValue < minValue) {
                         minValue = tempValue;
