@@ -22,11 +22,15 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("layout_main.fxml"));
+        FXMLLoader fxmlLoader =new FXMLLoader(getClass().getResource("layout_main.fxml"));
+        Parent root = fxmlLoader.load();
         primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        Scene scene = new Scene(root, 300, 275);
+        primaryStage.setScene(scene);
         primaryStage.show();
 
+        Controller controller = fxmlLoader.getController();
+        controller.setStage(primaryStage);
 
         ContourRecognizer contourRecognizer = new ContourRecognizer();
         Mat image = ImageProcessor.openSingleImage(new File("./resources/apple.JPG"));;//Imgcodecs.imread("./resources/Golden_01_1.JPG", Imgproc.COLOR_BGR2GRAY);
@@ -70,12 +74,6 @@ public class Main extends Application {
 //        mc5.setTo(new Scalar(5));
 //        System.out.println("OpenCV Mat data:\n" + m.dump());
 
-
-    }
-
-
-    private void capture()
-    {
 
     }
 

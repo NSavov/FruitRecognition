@@ -16,6 +16,11 @@ public class ContourRecognizer {
 
     List<MatOfPoint> templates = new ArrayList<>();
 
+    public List<MatOfPoint> getTemplates()
+    {
+        return templates;
+    }
+
     public void train(File directory)
     {
        train(ImageProcessor.openImages(directory));
@@ -61,7 +66,7 @@ public class ContourRecognizer {
 
     Mat img;
 
-    public List<MatOfPoint> findContours(Mat img)
+    public List<MatOfPoint> findContours(Mat img, double threshold)
     {
         List<MatOfPoint> result = new ArrayList<>();
 //        try {
@@ -84,7 +89,7 @@ public class ContourRecognizer {
         for(int i=0 ; i<size; i++)
         {
             double value = values.get(i);
-            if(values.get(i)<0.2)
+            if(values.get(i)<threshold)
                 result.add(contours.get(i));
 
         }
@@ -108,11 +113,11 @@ public class ContourRecognizer {
         return img;
     }
 
-    public List<MatOfPoint> findContours(File file)
+    public List<MatOfPoint> findContours(File file, double threshold)
     {
         Mat img = ImageProcessor.openSingleImage(file);
 
-        return findContours(img);
+        return findContours(img, threshold);
     }
 
     public int findLargestContourContArea(List<MatOfPoint> contours)
@@ -179,8 +184,8 @@ public class ContourRecognizer {
 
         Imgproc.Canny(imageHSV, imageA, 10, 65, 3, true );
 
-        Imgproc.dilate(imageA, imageA, new Mat(), new Point(-1, -1), 2);//Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2)));
-        Imgproc.erode(imageA, imageA, new Mat(),new Point(-1, -1), 2);// Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2,2)));
+        Imgproc.dilate(imageA, imageA, new Mat());//, new Point(-1, -1), 2);//Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2)));
+        Imgproc.erode(imageA, imageA, new Mat());//,new Point(-1, -1), 2);// Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2,2)));
 
 //        Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(1, 1));
 //        Imgproc.morphologyEx(imageHSV, imageA, Imgproc.MORPH_OPEN, element);
