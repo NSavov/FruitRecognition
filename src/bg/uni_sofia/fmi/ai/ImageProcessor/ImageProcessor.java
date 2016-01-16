@@ -63,7 +63,7 @@ public class ImageProcessor {
     }
 
     VideoCapture capture;
-    public void startCamera()
+    public void startCamera(int width, int height)
     {
         capture = new VideoCapture(0);
         capture.set(Videoio.CAP_PROP_FRAME_WIDTH,320);

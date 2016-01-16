@@ -13,11 +13,14 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
 
 import java.io.File;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
@@ -80,7 +83,7 @@ public class Controller implements Initializable {
     private void startImageMode()
     {
 
-        contourRecognizer.findContours(new File(resourceImagePath), 0.2);
+        List<MatOfPoint> list = contourRecognizer.findContours(new File(resourceImagePath), 0.2);
         Mat mat = contourRecognizer.getImage();
         Image image = ImageProcessor.matToImage(mat);
         imageView.setImage(image);

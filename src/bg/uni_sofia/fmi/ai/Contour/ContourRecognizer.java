@@ -4,6 +4,7 @@ import bg.uni_sofia.fmi.ai.ImageProcessor.ImageProcessor;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.photo.Photo;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -164,6 +165,15 @@ public class ContourRecognizer {
         }
     }
 
+    public Mat decolor(Mat img)
+    {
+        Mat output = new Mat();
+        Core.inRange(img, new Scalar(0, 0, 0), new Scalar(255, 10, 10),output);
+        Imgcodecs.imwrite("./output/test5.png", output);
+        return output;
+    }
+
+
     int i=0;
     public List<MatOfPoint> getAllContours(Mat mat)
     {
@@ -172,40 +182,57 @@ public class ContourRecognizer {
         Mat imageHSV = new Mat();
         Mat imageBlurr = new Mat();
         Mat imageA = new Mat();
-        Imgproc.cvtColor(image, imageHSV, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.medianBlur(imageHSV, imageHSV, 9);
-        Mat gray0 = new Mat(imageHSV.size(), CvType.CV_8U);
-//        Core.mixChannels(imageHSV, gray0, );
-
-//        Imgproc.GaussianBlur(imageHSV, imageHSV, new Size(5,5), 0);
-//        Imgproc.adaptiveThreshold(imageBlurr, imageA, 255,Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY,7, 0);
-//        Imgproc.threshold(imageHSV,imageA,15,255, Imgproc.THRESH_BINARY);
-//        Imgproc.Canny(imageHSV, imageA, 70, 150, 3, true );
-
-        Imgproc.Canny(imageHSV, imageA, 10, 65, 3, true );
-
-//        Imgproc.dilate(imageA, imageA, new Mat(), new Point(0, 0), 3);//Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2)));
-//        Imgproc.erode(imageA, imageA, new Mat(),new Point(-1, -1), 2);// Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2,2)));
-
-        Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
-//        Imgproc.morphologyEx(imageHSV, imageA, Imgproc.MORPH_OPEN, element);
-
-//        for(int i =0; i<3; i++)
-            Imgproc.morphologyEx(imageA, imageA, Imgproc.MORPH_DILATE, element, new Point(-1, -1), 3);
-
-
-//        Imgproc.adaptiveThreshold(imageA, imageA, 255,Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY,7, 0);
-//        Imgproc.threshold(imageA,imageA,50,255, Imgproc.THRESH_BINARY);
-        Imgcodecs.imwrite("./output/test1" +".jpeg",imageA);
 
 
 
-        i++;
+//        Imgproc.cvtColor(image, imageHSV, Imgproc.COLOR_BGR2HSV);
+//        imageHSV = decolor(image);
+
+
+//        Imgcodecs.imwrite("./output/testn.png",image);
+//        Imgproc.cvtColor(imageHSV, imageHSV, Imgproc.COLOR_BGR2GRAY);
+//        Imgproc.medianBlur(imageHSV, imageHSV, 9);
+
+        List<Mat> src = new ArrayList<Mat>();
+        src.add(image);
+        List<Mat> dest = new ArrayList<Mat>();
+        Mat gray0 = new Mat(image.size(), CvType.CV_8U);
+        dest.add(gray0);
+        MatOfInt convert;
 
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-        Imgproc.findContours(imageA, contours, new Mat(), Imgproc.RETR_LIST ,Imgproc.CHAIN_APPROX_NONE);
+        for(int i=0; i<3; i++) {
+            convert = new MatOfInt(i, 0);
+            Core.mixChannels(src, dest, convert);
+            Imgcodecs.imwrite("./output/test4-" + String.valueOf(i) + ".jpeg", dest.get(0));
 
-        Imgcodecs.imwrite("./output/test2.png",image);
+            imageHSV = dest.get(0);
+//        Imgproc.GaussianBlur(imageHSV, imageHSV, new Size(5,5), 0);
+//        Imgproc.adaptiveThreshold(imageHSV, imageA, 255,Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY,7, 0);
+//        Imgproc.threshold(imageHSV,imageHSV,15,255, Imgproc.THRESH_BINARY);
+//            Imgproc.Canny(imageHSV, imageHSV, 70, 150, 3, true);
+
+        Imgproc.Canny(imageHSV, imageHSV, 20, 80, 3, true );
+//        Photo.fastNlMeansDenoising(imageHSV, imageHSV);
+//        Imgproc.dilate(imageHSV, imageHSV, new Mat(), new Point(-1, -1), 2);//Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2)));
+//        Imgproc.erode(imageHSV, imageHSV, new Mat(),new Point(-1, -1), 2);// Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2,2)));
+
+            Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
+//        Imgproc.morphologyEx(imageHSV, imageHSV, Imgproc.MORPH_OPEN, element);
+
+//        for(int i =0; i<3; i++)
+            Imgproc.morphologyEx(imageHSV, imageHSV, Imgproc.MORPH_DILATE, element, new Point(-1, -1), 2);
+
+
+//        Imgproc.adaptiveThreshold(imageHSV, imageHSV, 255,Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY,7, 0);
+//        Imgproc.threshold(imageHSV,imageHSV,50,255, Imgproc.THRESH_BINARY);
+            Imgcodecs.imwrite("./output/test1-" + String.valueOf(i) + ".jpeg", imageHSV);
+
+
+            List<MatOfPoint> temp = new ArrayList<MatOfPoint>();
+            Imgproc.findContours(imageHSV, temp, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_NONE);
+            contours.addAll(temp);
+        }
 
         return contours;
     }
