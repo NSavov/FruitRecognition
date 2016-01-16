@@ -184,13 +184,14 @@ public class ContourRecognizer {
 
         Imgproc.Canny(imageHSV, imageA, 10, 65, 3, true );
 
-        Imgproc.dilate(imageA, imageA, new Mat());//, new Point(-1, -1), 2);//Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2)));
-        Imgproc.erode(imageA, imageA, new Mat());//,new Point(-1, -1), 2);// Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2,2)));
+//        Imgproc.dilate(imageA, imageA, new Mat(), new Point(0, 0), 3);//Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2)));
+//        Imgproc.erode(imageA, imageA, new Mat(),new Point(-1, -1), 2);// Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2,2)));
 
-//        Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(1, 1));
+        Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
 //        Imgproc.morphologyEx(imageHSV, imageA, Imgproc.MORPH_OPEN, element);
-//
-//        Imgproc.morphologyEx(imageA, imageA, Imgproc.MORPH_ERODE, element);
+
+//        for(int i =0; i<3; i++)
+            Imgproc.morphologyEx(imageA, imageA, Imgproc.MORPH_DILATE, element, new Point(-1, -1), 3);
 
 
 //        Imgproc.adaptiveThreshold(imageA, imageA, 255,Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY,7, 0);
