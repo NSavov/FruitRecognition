@@ -217,10 +217,6 @@ public class ContourRecognizer {
 
         Mat image = mat.clone();
         Mat imageHSV = new Mat();
-        Mat imageBlurr = new Mat();
-        Mat imageA = new Mat();
-
-
 
 //        Imgproc.cvtColor(image, imageHSV, Imgproc.COLOR_BGR2HSV);
 //        imageHSV = decolor(image);

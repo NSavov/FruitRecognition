@@ -24,7 +24,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         FXMLLoader fxmlLoader =new FXMLLoader(getClass().getResource("layout_main.fxml"));
         Parent root = fxmlLoader.load();
-        primaryStage.setTitle("Hello World");
+        primaryStage.setTitle("Fruit Recognizer");
         Scene scene = new Scene(root, 300, 275);
         primaryStage.setScene(scene);
         primaryStage.show();
