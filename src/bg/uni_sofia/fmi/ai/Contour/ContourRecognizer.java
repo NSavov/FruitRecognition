@@ -22,14 +22,12 @@ public class ContourRecognizer {
         return templates;
     }
 
-    public void train(File directory)
-    {
-       train(ImageProcessor.openImages(directory));
+    public void train(File directory, File dest) throws IOException {
+       train(ImageProcessor.openImages(directory), dest);
     }
 
-    private void train(List<Mat> images)
-    {
-        int i=0;
+    private void train(List<Mat> images, File dest) throws IOException {
+        int k=0;
         List<MatOfPoint> contours;
         for(Mat img : images)
         {
@@ -42,10 +40,9 @@ public class ContourRecognizer {
             test.add(contours.get(ind));
             Mat mat = img.clone();
             drawContours(mat, test);
-            Imgcodecs.imwrite("./output/training/"+String.valueOf(i) + ".jpg", mat);
-            i++;
+            Imgcodecs.imwrite("./output/training/"+String.valueOf(k) + ".jpg", mat);
+            k++;
             templates.add(contours.get(ind));
-
         }
 
 //        TaFileStorage fileStorage = new TaFileStorage();
@@ -55,6 +52,52 @@ public class ContourRecognizer {
 //            fileStorage.writeMat("template" + String.valueOf(i), templates.get(i));
 //        }
 
+
+        BufferedWriter writer = null;
+        writer = new BufferedWriter(new FileWriter(dest));
+        for(MatOfPoint template : templates) {
+            List<Point> points = template.toList();
+
+            for (Point point : points) {
+                writer.write(String.valueOf(point.x));
+                writer.write(' ');
+                writer.write(String.valueOf(point.y));
+                writer.write(' ');
+            }
+
+            writer.write("\n");
+        }
+        writer.close();
+    }
+
+    public boolean isTrainingDataLoaded()
+    {
+        return templates != null;
+    }
+
+    public void loadTrainingData(File src) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(src));
+        String line;
+
+        if(templates == null)
+            templates = new ArrayList<>();
+
+        List<Point> points = new ArrayList<>();
+        while((line = reader.readLine()) != null) {
+            line = line.trim();
+            String[] numbers = line.split(" ");
+
+            if(numbers.length < 2)
+                throw new IOException();
+
+            for (int i = 1; i<numbers.length; i+=2) {
+                points.add(new Point(Double.valueOf(numbers[i-1]), Double.valueOf(numbers[i])));
+            }
+            MatOfPoint matOfPoint = new MatOfPoint();
+            matOfPoint.fromList(points);
+            templates.add(matOfPoint);
+            points.clear();
+        }
     }
 
     private void drawContours(Mat img, List<MatOfPoint> contours)
@@ -79,10 +122,7 @@ public class ContourRecognizer {
             return null;
 
         List<MatOfPoint> contours = getAllContours(img.clone());
-        filter(contours, 100);
-
-//        filter(contours, 0);
-
+        filter(contours, 100);//Math.max(img.rows(), img.cols())/20);
 
         List<Double> values = evaluateContours(contours, templates);
 
@@ -96,8 +136,6 @@ public class ContourRecognizer {
         }
 
         Mat mat = img.clone();
-//        ArrayList<MatOfPoint> test = new ArrayList<>();
-//        test.add(contours.get(findLargestContour(contours)));
         drawContours(img, contours);
 //        Imgproc.drawContours(img, contours, 0, new Scalar(0, 0, 255));
         Imgcodecs.imwrite("./output/test2.png",img);
@@ -121,7 +159,7 @@ public class ContourRecognizer {
         return findContours(img, threshold);
     }
 
-    public int findLargestContourContArea(List<MatOfPoint> contours)
+    private int findLargestContourContArea(List<MatOfPoint> contours)
     {
         double maxArea = 0;
         int index = -1;
@@ -137,7 +175,7 @@ public class ContourRecognizer {
         return index;
     }
 
-    public int findLargestContour(List<MatOfPoint> contours)
+    private int findLargestContour(List<MatOfPoint> contours)
     {
         double maxArea = 0;
         int index = -1;
@@ -153,7 +191,7 @@ public class ContourRecognizer {
         return index;
     }
 
-    public void filter(List<MatOfPoint> contours, int area)
+    private void filter(List<MatOfPoint> contours, int area)
     {
         for(int i=0; i< contours.size();i++){
             double contArea = (Imgproc.boundingRect(contours.get(i))).area();
@@ -165,17 +203,16 @@ public class ContourRecognizer {
         }
     }
 
-    public Mat decolor(Mat img)
-    {
-        Mat output = new Mat();
-        Core.inRange(img, new Scalar(0, 0, 0), new Scalar(255, 10, 10),output);
-        Imgcodecs.imwrite("./output/test5.png", output);
-        return output;
-    }
+//    public Mat decolor(Mat img)
+//    {
+//        Mat output = new Mat();
+//        Core.inRange(img, new Scalar(0, 0, 0), new Scalar(255, 10, 10),output);
+//        Imgcodecs.imwrite("./output/test5.png", output);
+//        return output;
+//    }
 
 
-    int i=0;
-    public List<MatOfPoint> getAllContours(Mat mat)
+    private List<MatOfPoint> getAllContours(Mat mat)
     {
 
         Mat image = mat.clone();
@@ -220,7 +257,6 @@ public class ContourRecognizer {
             Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
 //        Imgproc.morphologyEx(imageHSV, imageHSV, Imgproc.MORPH_OPEN, element);
 
-//        for(int i =0; i<3; i++)
             Imgproc.morphologyEx(imageHSV, imageHSV, Imgproc.MORPH_DILATE, element, new Point(-1, -1), 2);
 
 
@@ -237,7 +273,7 @@ public class ContourRecognizer {
         return contours;
     }
 
-    public List<Double> evaluateContours(List<MatOfPoint> contours, List<MatOfPoint> templates)
+    private List<Double> evaluateContours(List<MatOfPoint> contours, List<MatOfPoint> templates)
     {
         ArrayList<Double> values = new ArrayList<>();
 
@@ -269,39 +305,4 @@ public class ContourRecognizer {
 
         return values;
     }
-
-//    public void run(String inFile, String templateFile, String outFile, int match_method) {
-//        System.out.println("\nRunning Template Matching");
-//
-//        Mat img = Highgui.imread(inFile);
-//        Mat templ = Highgui.imread(templateFile);
-//
-//        // / Create the result matrix
-//        int result_cols = img.cols() - templ.cols() + 1;
-//        int result_rows = img.rows() - templ.rows() + 1;
-//        Mat result = new Mat(result_rows, result_cols, CvType.CV_32FC1);
-//
-//        // / Do the Matching and Normalize
-//        Imgproc.matchTemplate(img, templ, result, match_method);
-//        Core.normalize(result, result, 0, 1, Core.NORM_MINMAX, -1, new Mat());
-//
-//        // / Localizing the best match with minMaxLoc
-//        MinMaxLocResult mmr = Core.minMaxLoc(result);
-//
-//        Point matchLoc;
-//        if (match_method == Imgproc.TM_SQDIFF || match_method == Imgproc.TM_SQDIFF_NORMED) {
-//            matchLoc = mmr.minLoc;
-//        } else {
-//            matchLoc = mmr.maxLoc;
-//        }
-//
-//        // / Show me what you got
-//        Core.rectangle(img, matchLoc, new Point(matchLoc.x + templ.cols(),
-//                matchLoc.y + templ.rows()), new Scalar(0, 255, 0));
-//
-//        // Save the visualized detection.
-//        System.out.println("Writing "+ outFile);
-//        Highgui.imwrite(outFile, img);
-//
-//    }
 }

@@ -1,6 +1,7 @@
 package bg.uni_sofia.fmi.ai.FruitRecognizer;
 
 import bg.uni_sofia.fmi.ai.Contour.ContourRecognizer;
+import bg.uni_sofia.fmi.ai.ImageProcessor.FruitHistogram;
 import bg.uni_sofia.fmi.ai.ImageProcessor.ImageProcessor;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -19,6 +20,7 @@ import org.opencv.videoio.VideoCapture;
 import org.opencv.videoio.Videoio;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -111,7 +113,20 @@ public class Controller implements Initializable {
             }
         }});
         resourceImagePath = "./resources/apple.jpg";
-        contourRecognizer.train(new File("./resources/dataset"));
+//        try {
+//            contourRecognizer.train(new File("./resources/dataset"), new File("./output/data.txt"));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+        try {
+            contourRecognizer.loadTrainingData(new File("./output/data.txt"));
+//            FruitHistogram fr = new FruitHistogram(contourRecognizer, "D:\\Work\\FruitRecognition\\resources\\dataset", "apple");
+//            fr.train();
+//            System.out.println(fr.compare(ImageProcessor.openSingleImage(new File(resourceImagePath)))+ "________________");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         startImageMode();
     }
 }
