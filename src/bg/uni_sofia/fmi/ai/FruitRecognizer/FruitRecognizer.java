@@ -3,12 +3,18 @@ package bg.uni_sofia.fmi.ai.FruitRecognizer;
 import bg.uni_sofia.fmi.ai.Contour.ContourRecognizer;
 import bg.uni_sofia.fmi.ai.ImageProcessor.FruitHistogram;
 import bg.uni_sofia.fmi.ai.ImageProcessor.ImageProcessor;
+import javafx.scene.image.Image;
+import javafx.scene.shape.Rectangle;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Rect;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 
-import java.awt.*;
-import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -32,7 +38,7 @@ public class FruitRecognizer {
     }
 
     public enum EObjectName{
-        GREEN_APPLE("green apple", "./recognitionData/green_apple");
+        GREEN_APPLE("green apple", "./recognitionData/training_green_apple");
 
         private final String name;
         private final String trainingDataPath;
@@ -84,7 +90,7 @@ public class FruitRecognizer {
             destFile.mkdirs();
         }
 
-        File contourData = new File(trainingFile, CONTOUR_DATA_FILE_NAME + "_" + objectName);
+        File contourData = new File(destFile, CONTOUR_DATA_FILE_NAME + "_" + objectName);
         contourData.createNewFile();
 
         ContourRecognizer contourRecognizer;
@@ -109,7 +115,7 @@ public class FruitRecognizer {
 
         File trainingData = new File(trainingDataPath);
 
-        if(!trainingData.exists() || !trainingData.isDirectory())
+        if(!trainingData.exists() || trainingData.isDirectory())
             return false;
 
         ContourRecognizer contourRecognizer;
@@ -126,8 +132,48 @@ public class FruitRecognizer {
         return  true;
     }
 
-    public List<List<Double>> recognize(String imgPath, final EObjectName objectName) throws IOException {
-        List<List<Double>> result = null;
+    private boolean isChild(Rect parent, Rect rect)
+    {
+        return parent.x < rect.x && parent.y < rect.y &&
+                parent.x+parent.width > rect.x+rect.width && parent.y+parent.height > rect.y+rect.height;
+    }
+
+    private void removeChildren(List<MatOfPoint> objectContours)
+    {
+        if(objectContours == null)
+            return;
+
+        objectContours.sort(new Comparator<MatOfPoint>() {
+            @Override
+            public int compare(MatOfPoint o1, MatOfPoint o2) {
+                if( Imgproc.boundingRect(o1).area() > Imgproc.boundingRect(o2).area())
+                    return 1;
+
+                if( Imgproc.boundingRect(o1).area() < Imgproc.boundingRect(o2).area())
+                    return -1;
+
+                return 0;
+            }
+        });
+
+
+        for(int k=objectContours.size()-1; k>0; k++)
+        {
+            Rect rect = Imgproc.boundingRect(objectContours.get(k));
+            for(int i=0; i<k; i++)
+            {
+                Rect smallerRect = Imgproc.boundingRect(objectContours.get(i));
+                if(isChild(rect, smallerRect)) {
+                    objectContours.remove(i);
+                }
+
+            }
+        }
+
+    }
+
+    public List<Rectangle> recognize(String imgPath, final EObjectName objectName) throws IOException {
+        List<Rectangle> result = null;
         switch(objectName)
         {
             case GREEN_APPLE:
@@ -140,8 +186,9 @@ public class FruitRecognizer {
         return  result;
     }
 
-    public List<List<Double>> recognize(String imgPath, String objectName) throws IOException {
-        List<List<Double>> result = null;
+    private List<MatOfPoint> recognizeInternal(String imgPath, String objectName)
+    {
+        List<MatOfPoint> objectContours = null;
 
         ContourRecognizer contourRecognizer;
         if(!recognizers.containsKey(objectName))
@@ -149,13 +196,54 @@ public class FruitRecognizer {
 
         contourRecognizer = recognizers.get(objectName).contourRecognizer;
 
+
         Mat mat = ImageProcessor.openSingleImage(new File(imgPath));
-        contourRecognizer.findContours(mat, similarityThreshold);
+        Mat resized = new Mat();
+//        Imgproc.resize(mat, resized, new Size(300, 300));
+        objectContours = contourRecognizer.findContours(mat, similarityThreshold);
         //TODO: set up filtering by histogram here
+
+//        removeChildren(objectContours);
+        return  objectContours;
+    }
+
+    public List<Rectangle> recognize(String imgPath, String objectName) throws IOException {
+        List<Rectangle> result = new ArrayList<>();
+        List<MatOfPoint> rects = recognizeInternal(imgPath, objectName);
+
+
+        for(MatOfPoint contour : rects)
+        {
+            Rect r = Imgproc.boundingRect(contour);
+            result.add(new Rectangle(r.x, r.y, r.width, r.height));
+        }
+//        removeChildren(objectContours);
+        return  result;
+    }
+
+    public Image recognizeAndDraw(String imgPath, EObjectName objectName) throws IOException {
+        Image result = null;
+        switch(objectName)
+        {
+            case GREEN_APPLE:
+                loadTrainingData(objectName.trainingDataPath, objectName.name());
+                result = recognizeAndDraw(imgPath, objectName.name());
+                break;
+
+        }
 
         return  result;
     }
 
+    public Image recognizeAndDraw(String imgPath, String objectName) throws IOException {
+        List<MatOfPoint> contours = recognizeInternal(imgPath, objectName);
+
+        Mat resultImg = ImageProcessor.openSingleImage(new File(imgPath));
+        ContourRecognizer.drawContours(resultImg, contours);
+       Image result = ImageProcessor.matToImage(resultImg);
+//        removeChildren(objectContours);
+        return  result;
+    }
 
     public void setSimilarityThreshold(double threshold)
     {

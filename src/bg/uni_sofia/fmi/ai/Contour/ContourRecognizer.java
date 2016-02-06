@@ -100,7 +100,7 @@ public class ContourRecognizer {
         }
     }
 
-    private void drawContours(Mat img, List<MatOfPoint> contours)
+    public static void drawContours(Mat img, List<MatOfPoint> contours)
     {
         for(MatOfPoint contour: contours) {
             Rect rect = Imgproc.boundingRect(contour);
@@ -122,8 +122,9 @@ public class ContourRecognizer {
             return null;
 
         List<MatOfPoint> contours = getAllContours(img.clone());
-        filter(contours, 100);//Math.max(img.rows(), img.cols())/20);
-
+//        filter(contours, (Math.max(img.rows(), img.cols())/17)*(Math.min(img.rows(), img.cols())/17));
+        filterByHeight(contours, img.rows()/70);
+        filterByWidth(contours, img.cols()/70);
         List<Double> values = evaluateContours(contours, templates);
 
         int size = contours.size();
@@ -197,6 +198,28 @@ public class ContourRecognizer {
             double contArea = (Imgproc.boundingRect(contours.get(i))).area();
 //            if (Imgproc.contourArea(contours.get(i)) < area ){
             if (contArea < area ){
+                contours.remove(i);
+                i--;
+            }
+        }
+    }
+
+    private void filterByHeight(List<MatOfPoint> contours, int height)
+    {
+        for(int i=0; i< contours.size();i++){
+            double rectHeight = (Imgproc.boundingRect(contours.get(i))).height;
+            if (rectHeight < height ){
+                contours.remove(i);
+                i--;
+            }
+        }
+    }
+
+    private void filterByWidth(List<MatOfPoint> contours, int width)
+    {
+        for(int i=0; i< contours.size();i++){
+            double rectWidth = (Imgproc.boundingRect(contours.get(i))).width;
+            if (rectWidth < width ){
                 contours.remove(i);
                 i--;
             }

@@ -55,7 +55,10 @@ public class ImageProcessor {
         {
             for(File child: children)
             {
-                imgs.add(Imgcodecs.imread(child.getAbsolutePath()));
+                if(child.getName().toLowerCase().endsWith(".jpg") ||
+                child.getName().toLowerCase().endsWith(".png") ||
+                child.getName().toLowerCase().endsWith(".jpeg"))
+                    imgs.add(Imgcodecs.imread(child.getAbsolutePath()));
             }
         }
 
