@@ -1,7 +1,7 @@
 package bg.uni_sofia.fmi.ai.FruitRecognizer;
 
-import bg.uni_sofia.fmi.ai.Contour.ContourRecognizer;
-import bg.uni_sofia.fmi.ai.ImageProcessor.ImageProcessor;
+import ImageProcessor.ContourRecognizer;
+import ImageProcessor.ImageProcessor;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

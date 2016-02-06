@@ -1,9 +1,8 @@
 package bg.uni_sofia.fmi.ai.FruitRecognizer;
 
-import bg.uni_sofia.fmi.ai.Contour.ContourRecognizer;
-import bg.uni_sofia.fmi.ai.ImageProcessor.ImageProcessor;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import ImageProcessor.ContourRecognizer;
+import ImageProcessor.ImageProcessor;
+import FruitRecognizer.FruitRecognizer;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -25,7 +24,6 @@ import org.opencv.videoio.Videoio;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
