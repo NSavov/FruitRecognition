@@ -105,8 +105,11 @@ public class FruitRecognizer {
 
 
         for(Mat image : images) {
-            contourRecognizer.train(image);
-            //TODO: put file histogram training here
+            MatOfPoint resultContour = contourRecognizer.train(image);
+
+            if(resultContour != null) {
+                //TODO: put file histogram training here
+            }
 
         }
         contourRecognizer.exportTrainingData(contourData);

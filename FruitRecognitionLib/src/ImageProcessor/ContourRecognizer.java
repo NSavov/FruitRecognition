@@ -61,25 +61,26 @@ public class ContourRecognizer {
     }
 
 
-    public void train(File file, File dest) throws IOException {
+    public MatOfPoint train(File file, File dest) throws IOException {
         if(!file.isFile())
-            return;
+            return null;
 
-        train(ImageProcessor.openSingleImage(file));
+        return train(ImageProcessor.openSingleImage(file));
 
     }
 
-    public void train(Mat img) throws IOException {
+    public MatOfPoint train(Mat img) throws IOException {
 
         List<MatOfPoint> contours;
 
             contours = getAllContours(img);
             int ind = findLargestContour(contours);
             if(ind < 0)
-                return;
+                return null;
 
             templates.add(contours.get(ind));
 
+        return contours.get(ind);
     }
 
     public void exportTrainingData(File dest) throws IOException {
