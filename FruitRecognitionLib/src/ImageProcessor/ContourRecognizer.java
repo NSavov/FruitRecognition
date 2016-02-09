@@ -20,11 +20,11 @@ public class ContourRecognizer {
         return templates;
     }
 
-    public void train(File directory, File dest) throws IOException {
-       train(ImageProcessor.openImages(directory), dest);
+    public void trainFromDir(File directory, File dest) throws IOException {
+       trainFromDir(ImageProcessor.openImages(directory), dest);
     }
 
-    private void train(List<Mat> images, File dest) throws IOException {
+    private void trainFromDir(List<Mat> images, File dest) throws IOException {
         int k=0;
         List<MatOfPoint> contours;
         for(Mat img : images)
@@ -43,14 +43,6 @@ public class ContourRecognizer {
             templates.add(contours.get(ind));
         }
 
-//        TaFileStorage fileStorage = new TaFileStorage();
-//        fileStorage.create("./output/contourData.bin");
-//
-//        for(int i=0; i<templates.size(); i++) {
-//            fileStorage.writeMat("template" + String.valueOf(i), templates.get(i));
-//        }
-
-
         BufferedWriter writer = null;
         writer = new BufferedWriter(new FileWriter(dest));
         for(MatOfPoint template : templates) {
@@ -65,6 +57,49 @@ public class ContourRecognizer {
 
             writer.write("\n");
         }
+        writer.close();
+    }
+
+
+    public void train(File file, File dest) throws IOException {
+        if(!file.isFile())
+            return;
+
+        train(ImageProcessor.openSingleImage(file));
+
+    }
+
+    public void train(Mat img) throws IOException {
+
+        List<MatOfPoint> contours;
+
+            contours = getAllContours(img);
+            int ind = findLargestContour(contours);
+            if(ind < 0)
+                return;
+
+            templates.add(contours.get(ind));
+
+    }
+
+    public void exportTrainingData(File dest) throws IOException {
+
+        BufferedWriter writer = null;
+        writer = new BufferedWriter(new FileWriter(dest));
+
+        for(MatOfPoint template : templates) {
+            List<Point> points = template.toList();
+
+            for (Point point : points) {
+                writer.write(String.valueOf(point.x));
+                writer.write(' ');
+                writer.write(String.valueOf(point.y));
+                writer.write(' ');
+            }
+
+            writer.write("\n");
+        }
+
         writer.close();
     }
 

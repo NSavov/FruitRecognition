@@ -138,6 +138,9 @@ public class Controller implements Initializable {
                         new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif", "*.jpeg"));
                 File file = fileChooser.showOpenDialog(stage);
 
+                if(file == null)
+                    return;
+
                 try {
                     imageView.setImage(fruitRecognizer.recognizeAndDraw(file.getAbsolutePath(), FruitRecognizer.EObjectName.GREEN_APPLE));
                 } catch (IOException e) {

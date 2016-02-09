@@ -8,9 +8,12 @@ import javafx.scene.shape.Rectangle;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -97,13 +100,16 @@ public class FruitRecognizer {
             recognizers.put(objectName, new ObjectRecognizer());
 
         contourRecognizer = recognizers.get(objectName).contourRecognizer;
-        contourRecognizer.train(trainingFile, contourData);
-        //TODO: put file histogram training here
 
-//        if(additionalTrainingFile != null)
-//        {
-//            //TODO: put file histogram training here
-//        }
+        List<Mat> images = ImageProcessor.openImages(trainingFile);
+
+
+        for(Mat image : images) {
+            contourRecognizer.train(image);
+            //TODO: put file histogram training here
+
+        }
+        contourRecognizer.exportTrainingData(contourData);
     }
 
     //returns false if loading the data was unsuccessful
@@ -156,7 +162,7 @@ public class FruitRecognizer {
         });
 
 
-        for(int k=objectContours.size()-1; k>0; k++)
+        for(int k=objectContours.size()-1; k>0; k--)
         {
             Rect rect = Imgproc.boundingRect(objectContours.get(k));
             for(int i=0; i<k; i++)
@@ -164,6 +170,8 @@ public class FruitRecognizer {
                 Rect smallerRect = Imgproc.boundingRect(objectContours.get(i));
                 if(isChild(rect, smallerRect)) {
                     objectContours.remove(i);
+                    i--;
+                    k--;
                 }
 
             }
@@ -235,12 +243,15 @@ public class FruitRecognizer {
     }
 
     public Image recognizeAndDraw(String imgPath, String objectName) throws IOException {
-        List<MatOfPoint> contours = recognizeInternal(imgPath, objectName);
 
+        List<MatOfPoint> contours = recognizeInternal(imgPath, objectName);
+        removeChildren(contours);
         Mat resultImg = ImageProcessor.openSingleImage(new File(imgPath));
+//        double ratio = resultImg.height()/resultImg.width();
+//        Imgproc.resize( resultImg, resultImg, new Size(300, (int)(ratio*300.0)));
         ContourRecognizer.drawContours(resultImg, contours);
        Image result = ImageProcessor.matToImage(resultImg);
-//        removeChildren(objectContours);
+
         return  result;
     }
 
