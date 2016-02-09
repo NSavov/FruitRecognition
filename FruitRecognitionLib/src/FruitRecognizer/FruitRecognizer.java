@@ -24,7 +24,7 @@ import java.util.List;
  * Created by Недко on 31.1.2016 г..
  */
 public class FruitRecognizer {
-    private final String CONTOUR_DATA_FILE_NAME = "training";
+    private static final String CONTOUR_DATA_FILE_NAME = "training";
     private double similarityThreshold = 0.2;
     private HashMap<String, ObjectRecognizer> recognizers;
 
@@ -40,15 +40,17 @@ public class FruitRecognizer {
     }
 
     public enum EObjectName{
-        GREEN_APPLE("green apple", "./recognitionData/training_green_apple");
+        GREEN_APPLE("green apple", "./recognitionData/" + CONTOUR_DATA_FILE_NAME +"_green_apple");
 
         private final String name;
         private final String trainingDataPath;
+        private final String colorTrainingDataPath;
 
         EObjectName(String objectName, String trainingDataPath)
         {
             name = objectName;
             this.trainingDataPath = trainingDataPath;
+            this.colorTrainingDataPath = trainingDataPath + "_colors";
         }
     }
 
