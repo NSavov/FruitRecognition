@@ -7,14 +7,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.Scalar;
-import org.opencv.ml.Ml;
+import org.opencv.core.*;
+import org.opencv.imgproc.Imgproc;
 import org.opencv.ml.KNearest;
+import org.opencv.ml.Ml;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main extends Application {
 
@@ -33,7 +33,7 @@ public class Main extends Application {
         controller.setStage(primaryStage);
 
         ContourRecognizer contourRecognizer = new ContourRecognizer();
-        Mat image = ImageProcessor.openSingleImage(new File("./resources/apple.JPG"));;//Imgcodecs.imread("./resources/Golden_01_1.JPG", Imgproc.COLOR_BGR2GRAY);
+        Mat image = ImageProcessor.openSingleImage(new File("./resources/images.jpg"));;//Imgcodecs.imread("./resources/Golden_01_1.JPG", Imgproc.COLOR_BGR2GRAY);
         Mat imageHSV = new Mat(image.size(), CvType.CV_8U);
         Mat imageBlurr = new Mat(image.size(), CvType.CV_8U);
         Mat imageA = new Mat(image.size(), CvType.CV_8UC3);
@@ -49,6 +49,17 @@ public class Main extends Application {
         mAll.push_back(m);
         mAll.push_back(m2);
         mAll.push_back(m3);
+        Mat histogram = new Mat();
+        List<Mat> images = new ArrayList<Mat>();
+        images.add(image);
+        Imgproc.calcHist(images, new MatOfInt(0), new Mat(), histogram, new MatOfInt(5), new MatOfFloat(0,256));
+//        Mat result = FruitHistogram.matFromJson(FruitHistogram.matToJson(histogram));
+//        List<Mat> test = new ArrayList<Mat>();
+//        test.add(histogram);
+//        test.add(histogram);
+//        test.add(histogram);
+//
+//        System.out.println(FruitHistogram.matFromJson(FruitHistogram.matToJson(test)));
 
         Mat mResult = new Mat(1, 3, CvType.CV_32F, new Scalar(0));
         mResult.put(0,0, new double[] {1});
@@ -65,7 +76,7 @@ public class Main extends Application {
         k.findNearest(new Mat(1,1,CvType.CV_32F,new Scalar(3.6)),1,mResult,response,dist);
         System.out.println(response.dump());
         System.out.println(dist.dump());
-
+//        FruitHistogram f = new FruitHistogram();
 //
 //        System.out.println("OpenCV Mat: " + m);
 //        Mat mr1 = m.row(1);
@@ -73,7 +84,6 @@ public class Main extends Application {
 //        Mat mc5 = m.col(5);
 //        mc5.setTo(new Scalar(5));
 //        System.out.println("OpenCV Mat data:\n" + m.dump());
-
 
     }
 
