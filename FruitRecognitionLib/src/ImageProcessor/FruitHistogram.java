@@ -20,7 +20,7 @@ public class FruitHistogram {
     public Mat mask;
     public Mat image, histogram;
     public String fruitName;
-
+    public static int counter = 0;
     public ContourRecognizer contourRecognizer;
     public List<Mat> histograms;
 
@@ -59,12 +59,16 @@ public class FruitHistogram {
         images.add(image);
         Mat mask = Mat.zeros(image.height(),image.width(), CvType.CV_8U);
         Imgproc.drawContours(mask, result, 0, new Scalar(255,255,255), -1);
-        Imgproc.calcHist(images, new MatOfInt(0), mask, histogram, new MatOfInt(25), new MatOfFloat(0,256));
+
+//        Imgcodecs.imwrite("./output/training/masks/" + Integer.toString(counter++) + ".jpg", mask);
+        Imgproc.calcHist(images, new MatOfInt(0, 1, 2), mask, histogram, new MatOfInt(30, 30, 30), new MatOfFloat(0,256, 0, 256,0,256));
+//        System.out.println(histogram.dump());
         return histogram;
     }
     public void train(MatOfPoint contur, Mat image) {
         histograms.add(makeHistogram(contur,image));
     }
+
     public float compare(List<MatOfPoint> contures, Mat image) {
         float maxComparement = 0;
         for(MatOfPoint contur : contures) {
