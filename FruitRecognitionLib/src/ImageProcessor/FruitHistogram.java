@@ -2,6 +2,7 @@ package ImageProcessor;
 
 import com.google.gson.*;
 import org.opencv.core.*;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.BufferedWriter;
@@ -60,7 +61,7 @@ public class FruitHistogram {
         Mat mask = Mat.zeros(image.height(),image.width(), CvType.CV_8U);
         Imgproc.drawContours(mask, result, 0, new Scalar(255,255,255), -1);
 
-//        Imgcodecs.imwrite("./output/training/masks/" + Integer.toString(counter++) + ".jpg", mask);
+        Imgcodecs.imwrite("./output/training/masks/" + Integer.toString(counter++) + ".jpg", mask);
         Imgproc.calcHist(images, new MatOfInt(0, 1, 2), mask, histogram, new MatOfInt(30, 30, 30), new MatOfFloat(0,256, 0, 256,0,256));
 //        System.out.println(histogram.dump());
         return histogram;
