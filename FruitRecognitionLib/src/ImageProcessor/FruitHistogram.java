@@ -48,6 +48,12 @@ public class FruitHistogram {
 //            this.histograms.add(makeHistogram(image));
 //        }
 //    }
+
+    public boolean hasTrainingData()
+    {
+        return histograms != null && !histograms.isEmpty();
+    }
+
     public Mat makeHistogram(MatOfPoint contur, Mat image) {
         List<MatOfPoint> result = new ArrayList<MatOfPoint>();
         List<Mat> images = new ArrayList<Mat>();

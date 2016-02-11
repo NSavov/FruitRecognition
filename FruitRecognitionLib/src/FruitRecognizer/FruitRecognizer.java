@@ -213,12 +213,21 @@ public class FruitRecognizer {
 
     }
 
+    public boolean hasTrainingData(String objectName)
+    {
+        if(!recognizers.containsKey(objectName))
+            return false;
+
+        return recognizers.get(objectName).contourRecognizer.isTrainingDataLoaded() && recognizers.get(objectName).fruitHistogram.hasTrainingData();
+    }
+
     public List<Rectangle> recognize(String imgPath, final EObjectName objectName) throws IOException {
         List<Rectangle> result = null;
         switch(objectName)
         {
             case GREEN_APPLE:
-//                loadTrainingDataInternal(objectName.trainingDataPathContours, objectName.trainingDataPathHistograms, objectName.name());
+                if(!hasTrainingData(objectName.name()))
+                    loadTrainingDataInternal(objectName.trainingDataPathContours, objectName.trainingDataPathHistograms, objectName.name());
                 result = recognize(imgPath, objectName.name());
                 break;
 
@@ -244,7 +253,7 @@ public class FruitRecognizer {
 //        Imgproc.resize(mat, resized, new Size(300, 300));
         objectContours = contourRecognizer.findContours(mat, similarityThreshold);
         //TODO: set up filtering by histogram here
-//        System.out.println("Tova trqbva da e chisloto " + fruitHistogram.compare(objectContours, mat));
+        objectContours = fruitHistogram.compare(objectContours, mat, 0.8f);
         removeChildren(objectContours);
         return  objectContours;
     }
@@ -267,7 +276,8 @@ public class FruitRecognizer {
         switch(objectName)
         {
             case GREEN_APPLE:
-//                loadTrainingDataInternal(objectName.trainingDataPathContours, objectName.trainingDataPathHistograms, objectName.name());
+                if(!hasTrainingData(objectName.name()))
+                    loadTrainingDataInternal(objectName.trainingDataPathContours, objectName.trainingDataPathHistograms, objectName.name());
                 result = recognizeAndDraw(imgPath, objectName.name());
                 break;
 

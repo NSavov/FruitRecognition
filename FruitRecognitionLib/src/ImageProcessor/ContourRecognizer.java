@@ -110,7 +110,7 @@ public class ContourRecognizer {
 
     public boolean isTrainingDataLoaded()
     {
-        return templates != null;
+        return templates != null && !templates.isEmpty();
     }
 
     public void loadTrainingData(InputStream src) throws IOException {
