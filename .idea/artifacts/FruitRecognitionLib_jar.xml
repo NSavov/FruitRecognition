@@ -4,7 +4,9 @@
     <root id="archive" name="FruitRecognitionLib.jar">
       <element id="module-output" name="FruitRecognitionLib" />
       <element id="extracted-dir" path="$PROJECT_DIR$/FruitRecognitionLib/lib/gson-2.2.2.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/opencv-310.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/FruitRecognitionLib/lib/opencv-310.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/FruitRecognitionLib/lib/commons-io-2.4.jar" path-in-jar="/" />
+      <element id="dir-copy" path="$PROJECT_DIR$/FruitRecognitionLib/lib/opencvdll" />
     </root>
   </artifact>
 </component>

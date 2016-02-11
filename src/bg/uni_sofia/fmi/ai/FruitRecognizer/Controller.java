@@ -16,10 +16,6 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
-import org.opencv.videoio.VideoCapture;
-import org.opencv.videoio.Videoio;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,9 +29,6 @@ public class Controller implements Initializable {
     private ImageView imageView;
 
     @FXML
-    private Button cameraButton;
-
-    @FXML
     private Button recognizeFromImageButton;
 
     @FXML
@@ -45,42 +38,9 @@ public class Controller implements Initializable {
     private ComboBox objectListView;
 
     Stage stage;
-    Thread cameraThread;
     String resourceImagePath;
-    ContourRecognizer contourRecognizer;
+    Image image;
     FruitRecognizer fruitRecognizer;
-
-    class CaptureRunnable implements Runnable{
-        @Override
-        public void run() {
-            ImageProcessor imageProcessor = new ImageProcessor();
-            Mat webcamMatImage = new Mat();
-            Image tempImage;
-
-            VideoCapture capture = new VideoCapture(0);
-            capture.set(Videoio.CAP_PROP_FRAME_WIDTH,1024);
-            capture.set(Videoio.CAP_PROP_FRAME_HEIGHT,768);
-            if( capture.isOpened()) {
-                while (!Thread.currentThread().isInterrupted()) {
-                    capture.read(webcamMatImage);
-                    if (!webcamMatImage.empty()) {
-                        contourRecognizer.findContours(webcamMatImage, 0.2);
-                        tempImage = ImageProcessor.matToImage(contourRecognizer.getImage());//imageProcessor.toBufferedImage(webcamMatImage);
-
-                        if(Thread.currentThread().isInterrupted())
-                            break;
-                        imageView.setImage(tempImage);
-//                    imageLabel.setIcon(imageIcon);
-//                    frame.pack(); //this will resize the window to fit the image
-                    } else {
-                        System.out.println(" -- Frame not captured -- Break!");
-                        break;
-                    }
-                }
-            }
-            capture.release();
-        }
-    }
 
     public void setStage(Stage stage)
     {
@@ -88,8 +48,8 @@ public class Controller implements Initializable {
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
-                if(cameraThread != null && cameraThread.isAlive())
-                    cameraThread.interrupt();
+//                if(cameraThread != null && cameraThread.isAlive())
+//                    cameraThread.interrupt();
             }
         });
 
@@ -99,35 +59,13 @@ public class Controller implements Initializable {
 
     private void startImageMode()
     {
-
-        List<MatOfPoint> list = contourRecognizer.findContours(new File(resourceImagePath), 0.2);
-        Mat mat = contourRecognizer.getImage();
-        Image image = ImageProcessor.matToImage(mat);
         imageView.setImage(image);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        contourRecognizer = new ContourRecognizer();
         fruitRecognizer = new FruitRecognizer();
-
-        cameraThread = new Thread(new CaptureRunnable());
-        cameraButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-            if(!cameraThread.isAlive()) {
-
-                cameraThread=new Thread(new CaptureRunnable());
-                cameraThread.start();
-
-            }
-            else
-            {
-                cameraThread.interrupt();
-                startImageMode();
-            }
-        }});
 
         recognizeFromImageButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -142,7 +80,8 @@ public class Controller implements Initializable {
                     return;
 
                 try {
-                    imageView.setImage(fruitRecognizer.recognizeAndDraw(file.getAbsolutePath(), FruitRecognizer.EObjectName.GREEN_APPLE));
+                    image = fruitRecognizer.recognizeAndDraw(file.getAbsolutePath(), FruitRecognizer.EObjectName.GREEN_APPLE);
+                    imageView.setImage(image);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -179,12 +118,12 @@ public class Controller implements Initializable {
                 {
                     try {
                         fruitRecognizer.train(file.getAbsolutePath(), "./", objectName);
+                        objectListView.getItems().add(objectName);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
 
-                objectListView.getItems().add(objectName);
             }
         });
 

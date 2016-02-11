@@ -34,7 +34,6 @@
                         </ComboBox>
                     <Button fx:id="recognizeFromImageButton" text="Recognize from image"/>
                     <Button fx:id="trainButton" text="Train"/>
-                    <Button fx:id="cameraButton" text="Camera"/>
                 </HBox>
             </children>
         </StackPane>

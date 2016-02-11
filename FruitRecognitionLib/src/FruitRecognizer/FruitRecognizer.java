@@ -5,27 +5,54 @@ import ImageProcessor.FruitHistogram;
 import ImageProcessor.ImageProcessor;
 import javafx.scene.image.Image;
 import javafx.scene.shape.Rectangle;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Недко on 31.1.2016 г..
  */
 public class FruitRecognizer {
+
     private static final String CONTOUR_DATA_FILE_NAME = "training";
     private static final String HISTOGRAM_DATA_FILE_NAME = "histogram";
     private double similarityThreshold = 0.2;
     private HashMap<String, ObjectRecognizer> recognizers;
+
+    /**
+     * Puts library to temp dir and loads to memory
+     */
+    private static void loadLib() {
+        String architecture  = "x64";
+        if(System.getProperty("os.arch").equals("x86"))
+        {
+            architecture = "x86";
+        }
+            // have to use a stream
+            InputStream in = FruitRecognizer.class.getResourceAsStream("/" + architecture + "/" + Core.NATIVE_LIBRARY_NAME + ".dll");
+            // always write to different location
+            File fileOut = new File(System.getProperty("java.io.tmpdir") + "/" + Core.NATIVE_LIBRARY_NAME + ".dll");
+        OutputStream out = null;
+        try {
+            out = FileUtils.openOutputStream(fileOut);
+            IOUtils.copy(in, out);
+
+            in.close();
+            out.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+            System.load(fileOut.toString());
+    }
 
     private class ObjectRecognizer{
         ContourRecognizer contourRecognizer;
@@ -51,34 +78,17 @@ public class FruitRecognizer {
             name = objectName;
             this.trainingDataPathContours = FruitRecognizer.class.getResourceAsStream(trainingDataPathContours);
             this.trainingDataPathHistograms = FruitRecognizer.class.getResourceAsStream(trainingDataPathHistograms);
-//            URI contourURI = null;
-//            URI histogramURI = null;
-//            try {
-//                 contourURI = FruitRecognizer.class.getResource(trainingDataPathContours).toURI();
-//                 histogramURI = FruitRecognizer.class.getResource(trainingDataPathHistograms).toURI();
-//            } catch (URISyntaxException e) {
-//                e.printStackTrace();
-//            }
-//
-//            if(contourURI != null)
-//                this.trainingDataPathContours = contourURI.getPath();
-//            else
-//                this.trainingDataPathContours = "";
-//            if(histogramURI != null)
-//                this.trainingDataPathHistograms = histogramURI.getPath();
-//            else
-//                this.trainingDataPathHistograms = "";
         }
     }
 
     public FruitRecognizer()
     {
+        loadLib();
         recognizers = new HashMap<>();
     }
 
     public void train(String trainingDirPath, String destinationDirPath , String objectName) throws IOException {
         File trainingFile = new File(trainingDirPath);
-        File additionalTrainingFile = null;
         File destFile = new File(destinationDirPath);
 
         if(trainingFile.exists()) {
@@ -90,21 +100,6 @@ public class FruitRecognizer {
         {
            throw new IOException("No training data.");
         }
-
-//        if(additionalHistogramTrainingDirPath != null && !additionalHistogramTrainingDirPath.equals(""))
-//        {
-//            additionalTrainingFile = new File(additionalHistogramTrainingDirPath);
-//
-//            if(additionalTrainingFile.exists()) {
-//                if (!additionalTrainingFile.isDirectory()) {
-//                    throw new IOException("The chosen training path is not a directory.");
-//                }
-//            }
-//            else
-//            {
-//                throw new IOException("No training data.");
-//            }
-//        }
 
         if (!destFile.exists())
         {
@@ -245,7 +240,7 @@ public class FruitRecognizer {
 //        Imgproc.resize(mat, resized, new Size(300, 300));
         objectContours = contourRecognizer.findContours(mat, similarityThreshold);
         //TODO: set up filtering by histogram here
-        System.out.println("Tova trqbva da e chisloto " + fruitHistogram.compare(objectContours, mat));
+//        System.out.println("Tova trqbva da e chisloto " + fruitHistogram.compare(objectContours, mat));
         removeChildren(objectContours);
         return  objectContours;
     }
