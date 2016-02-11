@@ -11,8 +11,6 @@ import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -219,7 +217,7 @@ public class FruitRecognizer {
         switch(objectName)
         {
             case GREEN_APPLE:
-                loadTrainingDataInternal(objectName.trainingDataPathContours, objectName.trainingDataPathHistograms, objectName.name());
+//                loadTrainingDataInternal(objectName.trainingDataPathContours, objectName.trainingDataPathHistograms, objectName.name());
                 result = recognize(imgPath, objectName.name());
                 break;
 
@@ -245,7 +243,7 @@ public class FruitRecognizer {
 //        Imgproc.resize(mat, resized, new Size(300, 300));
         objectContours = contourRecognizer.findContours(mat, similarityThreshold);
         //TODO: set up filtering by histogram here
-        System.out.println("Tova trqbva da e chisloto " + fruitHistogram.compare(objectContours, mat));
+        System.out.println("Tova trqbva da e chisloto " + fruitHistogram.compare(objectContours, mat, (float) 0.70).size() + " "  + objectContours.size());
         removeChildren(objectContours);
         return  objectContours;
     }
@@ -268,7 +266,7 @@ public class FruitRecognizer {
         switch(objectName)
         {
             case GREEN_APPLE:
-                loadTrainingDataInternal(objectName.trainingDataPathContours, objectName.trainingDataPathHistograms, objectName.name());
+//                loadTrainingDataInternal(objectName.trainingDataPathContours, objectName.trainingDataPathHistograms, objectName.name());
                 result = recognizeAndDraw(imgPath, objectName.name());
                 break;
 

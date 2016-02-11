@@ -6,7 +6,6 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,29 +52,48 @@ public class FruitHistogram {
         List<MatOfPoint> result = new ArrayList<MatOfPoint>();
         List<Mat> images = new ArrayList<Mat>();
         Mat histogram = new Mat();
+        Mat imageToGray = new Mat();
+        Mat imageToHSv = new Mat();
+        Imgproc.cvtColor(image, imageToGray, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.cvtColor(image,imageToHSv, Imgproc.COLOR_RGB2HSV);
         result.add(contur);
         images.add(image);
+        images.add(imageToGray);
+        images.add(imageToHSv);
+
         Mat mask = Mat.zeros(image.height(),image.width(), CvType.CV_8U);
         Imgproc.drawContours(mask, result, 0, new Scalar(255,255,255), -1);
 
-        Imgcodecs.imwrite("./output/training/masks/" + Integer.toString(counter++) + ".jpg", mask);
-        Imgproc.calcHist(images, new MatOfInt(0, 1, 2), mask, histogram, new MatOfInt(30, 30, 30), new MatOfFloat(0,256, 0, 256,0,256));
+//        Imgcodecs.imwrite("./output/training/masks/rgb" + Integer.toString(counter++) + ".jpg", image);
+//        Imgcodecs.imwrite("./output/training/masks/gray" + Integer.toString(counter++) + ".jpg", imageToGray);
+//        Imgcodecs.imwrite("./output/training/masks/hsv" + Integer.toString(counter++) + ".jpg", imageToHSv);
+        Imgcodecs.imwrite("./output/training/masks/ab" + Integer.toString(counter++) + ".jpg", mask);
+        Imgproc.calcHist(images, new MatOfInt(2, 0), mask, histogram, new MatOfInt(25, 25), new MatOfFloat(0,256, 0, 256));
 //        System.out.println(histogram.dump());
+        Mat normalHist = new Mat();
+//        Imgproc.equalizeHist(histogram, normalHist);
         return histogram;
     }
     public void train(MatOfPoint contur, Mat image) {
         histograms.add(makeHistogram(contur,image));
     }
 
-    public float compare(List<MatOfPoint> contures, Mat image) {
+    public List<MatOfPoint> compare(List<MatOfPoint> contures, Mat image, float threshold) {
         float maxComparement = 0;
+        List<MatOfPoint> result = new ArrayList<MatOfPoint>();
+        System.out.println(this.histograms.size());
         for(MatOfPoint contur : contures) {
             Mat tempHistogram = makeHistogram(contur, image);
             for (Mat hist : this.histograms) {
-                maxComparement = (float) Math.max(maxComparement, Imgproc.compareHist(hist, tempHistogram, 0));
+//                maxComparement = (float) Math.max(maxComparement, Imgproc.compareHist(hist, tempHistogram, 0));
+                if (Imgproc.compareHist(hist, tempHistogram, 0) >= threshold) {
+                    result.add(new MatOfPoint(contur));
+                    break;
+                }
             }
         }
-        return maxComparement;
+//        return maxComparement;
+        return result;
     }
 
 //    public float compare(Mat image) {
@@ -136,7 +154,7 @@ public class FruitHistogram {
 
 
                 obj.addProperty("data", gson.toJson(data));
-//                String json = gson.toJson(obj);
+                String json = gson.toJson(obj);
                 ja.add(obj);
             } else {
                 System.out.println("neshto se obarka");
@@ -168,7 +186,7 @@ public class FruitHistogram {
     public void exportTrainingData(File f) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(f));
-            writer.write(matToJson(this.histograms));
+//            writer.write(matToJson(this.histograms));
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -181,7 +199,7 @@ public class FruitHistogram {
             f.read(data);
             String s = new String(data);
             if (s.length() > 0) {
-                this.histograms = matFromJson(s);
+//                this.histograms = matFromJson(s);
             }
         } catch (IOException e) {
             e.printStackTrace();
