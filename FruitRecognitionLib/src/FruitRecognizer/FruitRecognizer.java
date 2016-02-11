@@ -10,8 +10,9 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -38,19 +39,35 @@ public class FruitRecognizer {
     }
 
     public enum EObjectName{
-        GREEN_APPLE("green apple", "./recognitionData/" + CONTOUR_DATA_FILE_NAME +"_green_apple", "./recognitionData/" + HISTOGRAM_DATA_FILE_NAME +"_green_apple");
+        GREEN_APPLE("green apple", "/recognitionData/" + CONTOUR_DATA_FILE_NAME + "_green_apple",
+                "/recognitionData/" + HISTOGRAM_DATA_FILE_NAME + "_green_apple");
 
         private final String name;
-        private final String trainingDataPathContours;
-        private final String trainingDataPathHistograms;
-        private final String colorTrainingDataPath;
+        private final InputStream trainingDataPathContours;
+        private final InputStream trainingDataPathHistograms;
 
         EObjectName(String objectName, String trainingDataPathContours, String trainingDataPathHistograms)
         {
             name = objectName;
-            this.trainingDataPathContours = trainingDataPathContours;
-            this.trainingDataPathHistograms = trainingDataPathHistograms;
-            this.colorTrainingDataPath = trainingDataPathContours + "_colors";
+            this.trainingDataPathContours = FruitRecognizer.class.getResourceAsStream(trainingDataPathContours);
+            this.trainingDataPathHistograms = FruitRecognizer.class.getResourceAsStream(trainingDataPathHistograms);
+//            URI contourURI = null;
+//            URI histogramURI = null;
+//            try {
+//                 contourURI = FruitRecognizer.class.getResource(trainingDataPathContours).toURI();
+//                 histogramURI = FruitRecognizer.class.getResource(trainingDataPathHistograms).toURI();
+//            } catch (URISyntaxException e) {
+//                e.printStackTrace();
+//            }
+//
+//            if(contourURI != null)
+//                this.trainingDataPathContours = contourURI.getPath();
+//            else
+//                this.trainingDataPathContours = "";
+//            if(histogramURI != null)
+//                this.trainingDataPathHistograms = histogramURI.getPath();
+//            else
+//                this.trainingDataPathHistograms = "";
         }
     }
 
@@ -121,17 +138,8 @@ public class FruitRecognizer {
         fruitHistogram.exportTrainingData(histogramData);
     }
 
-    //returns false if loading the data was unsuccessful
-    public boolean loadTrainingData(String trainingDataPathContours, String trainingDataPathHistograms, String objectName)
+    public boolean loadTrainingDataInternal(InputStream trainingDataContours, InputStream trainingDataHistograms, String objectName)
     {
-        if(trainingDataPathContours == null || trainingDataPathContours.isEmpty() || trainingDataPathHistograms == null || trainingDataPathHistograms.isEmpty())
-            return false;
-
-        File trainingDataContours = new File(trainingDataPathContours);
-        File trainingDataHistogram = new File(trainingDataPathHistograms);
-        if(!trainingDataContours.exists() || trainingDataContours.isDirectory() || !trainingDataHistogram.exists() || trainingDataHistogram.isDirectory())
-            return false;
-
         ContourRecognizer contourRecognizer;
         FruitHistogram fruitHistogram;
         if(!recognizers.containsKey(objectName))
@@ -142,12 +150,26 @@ public class FruitRecognizer {
         fruitHistogram = objectRecognizer.fruitHistogram;
         try {
             contourRecognizer.loadTrainingData(trainingDataContours);
-            fruitHistogram.loadTrainingData(trainingDataHistogram);
+            fruitHistogram.loadTrainingData(trainingDataHistograms);
         } catch (IOException e) {
             return false;
         }
 
-        return  true;
+        return true;
+    }
+
+    //returns false if loading the data was unsuccessful
+    public boolean loadTrainingData(String trainingDataPathContours, String trainingDataPathHistograms, String objectName) throws FileNotFoundException {
+        if(trainingDataPathContours == null || trainingDataPathContours.isEmpty() || trainingDataPathHistograms == null || trainingDataPathHistograms.isEmpty())
+            return false;
+
+        File trainingDataContours = new File(trainingDataPathContours);
+        File trainingDataHistograms = new File(trainingDataPathHistograms);
+        if(!trainingDataContours.exists() || trainingDataContours.isDirectory() || !trainingDataHistograms.exists() || trainingDataHistograms.isDirectory())
+            return false;
+
+        return loadTrainingDataInternal(new FileInputStream(trainingDataContours), new FileInputStream(trainingDataHistograms), objectName);
+
     }
 
     private boolean isChild(Rect parent, Rect rect)
@@ -197,7 +219,7 @@ public class FruitRecognizer {
         switch(objectName)
         {
             case GREEN_APPLE:
-                loadTrainingData(objectName.trainingDataPathContours, objectName.trainingDataPathHistograms, objectName.name());
+                loadTrainingDataInternal(objectName.trainingDataPathContours, objectName.trainingDataPathHistograms, objectName.name());
                 result = recognize(imgPath, objectName.name());
                 break;
 
@@ -224,7 +246,7 @@ public class FruitRecognizer {
         objectContours = contourRecognizer.findContours(mat, similarityThreshold);
         //TODO: set up filtering by histogram here
         System.out.println("Tova trqbva da e chisloto " + fruitHistogram.compare(objectContours, mat));
-//        removeChildren(objectContours);
+        removeChildren(objectContours);
         return  objectContours;
     }
 
@@ -238,7 +260,6 @@ public class FruitRecognizer {
             Rect r = Imgproc.boundingRect(contour);
             result.add(new Rectangle(r.x, r.y, r.width, r.height));
         }
-//        removeChildren(objectContours);
         return  result;
     }
 
@@ -247,7 +268,7 @@ public class FruitRecognizer {
         switch(objectName)
         {
             case GREEN_APPLE:
-                loadTrainingData(objectName.trainingDataPathContours, objectName.trainingDataPathHistograms, objectName.name());
+                loadTrainingDataInternal(objectName.trainingDataPathContours, objectName.trainingDataPathHistograms, objectName.name());
                 result = recognizeAndDraw(imgPath, objectName.name());
                 break;
 
@@ -259,7 +280,6 @@ public class FruitRecognizer {
     public Image recognizeAndDraw(String imgPath, String objectName) throws IOException {
 
         List<MatOfPoint> contours = recognizeInternal(imgPath, objectName);
-        removeChildren(contours);
         Mat resultImg = ImageProcessor.openSingleImage(new File(imgPath));
 //        double ratio = resultImg.height()/resultImg.width();
 //        Imgproc.resize( resultImg, resultImg, new Size(300, (int)(ratio*300.0)));

@@ -5,10 +5,7 @@ import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -178,12 +175,10 @@ public class FruitHistogram {
         }
     }
 
-    public void loadTrainingData(File f) {
+    public void loadTrainingData(InputStream f) {
         try {
-            if (!f.exists()) {
-                return;
-            }
-            byte[] data = Files.readAllBytes(f.toPath());
+            byte[] data =  new byte[f.available()];
+            f.read(data);
             String s = new String(data);
             if (s.length() > 0) {
                 this.histograms = matFromJson(s);

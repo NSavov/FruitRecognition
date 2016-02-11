@@ -6,6 +6,7 @@ import org.opencv.imgproc.Imgproc;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -35,6 +36,8 @@ public class ContourRecognizer {
                 continue;
 
             ArrayList<MatOfPoint> test = new ArrayList<>();
+            final MatOfPoint largestContour = contours.get(ind);
+            solidityProcessing(new ArrayList<MatOfPoint>(){{add(largestContour);}});
             test.add(contours.get(ind));
             Mat mat = img.clone();
             drawContours(mat, test);
@@ -78,6 +81,7 @@ public class ContourRecognizer {
             if(ind < 0)
                 return null;
 
+        solidityProcessing(new ArrayList<MatOfPoint>(){{add(contours.get(ind));}});
             templates.add(contours.get(ind));
 
         return contours.get(ind);
@@ -109,8 +113,8 @@ public class ContourRecognizer {
         return templates != null;
     }
 
-    public void loadTrainingData(File src) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(src));
+    public void loadTrainingData(InputStream src) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(src));
         String line;
 
         if(templates == null)
@@ -142,6 +146,25 @@ public class ContourRecognizer {
         }
     }
 
+    private void solidityProcessing(List<MatOfPoint> contours)
+    {
+        //solidity check
+        for(int i=0; i<contours.size(); i++) {
+            MatOfPoint contour = contours.get(i);
+            MatOfInt hull = new MatOfInt();
+            Imgproc.convexHull(contour, hull);
+            MatOfPoint hullContour = hull2Points(hull, contour);
+            double contourArea = Imgproc.contourArea(contour);
+            double hullArea = Imgproc.contourArea(hullContour);
+
+            if(contourArea/hullArea < 0.1) {
+                contours.remove(i);
+                contours.add(i, hullContour);
+            }
+
+        }
+    }
+
     Mat img;
 
     public List<MatOfPoint> findContours(Mat img, double threshold)
@@ -159,6 +182,8 @@ public class ContourRecognizer {
 //        filter(contours, (Math.max(img.rows(), img.cols())/17)*(Math.min(img.rows(), img.cols())/17));
         filterByHeight(contours, img.rows()/70);
         filterByWidth(contours, img.cols()/70);
+
+        solidityProcessing(contours);
         List<Double> values = evaluateContours(contours, templates);
 
         int size = contours.size();
@@ -308,7 +333,7 @@ public class ContourRecognizer {
 //        Imgproc.erode(imageHSV, imageHSV, new Mat(),new Point(-1, -1), 2);// Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2,2)));
 
             Mat element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
-//        Imgproc.morphologyEx(imageHSV, imageHSV, Imgproc.MORPH_OPEN, element);
+        Imgproc.morphologyEx(imageHSV, imageHSV, Imgproc.MORPH_CLOSE, element);
 
             Imgproc.morphologyEx(imageHSV, imageHSV, Imgproc.MORPH_DILATE, element, new Point(-1, -1), 2);
 
@@ -320,10 +345,23 @@ public class ContourRecognizer {
 
             List<MatOfPoint> temp = new ArrayList<MatOfPoint>();
             Imgproc.findContours(imageHSV, temp, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_NONE);
+
             contours.addAll(temp);
         }
 
         return contours;
+    }
+
+
+    private MatOfPoint hull2Points(MatOfInt hull, MatOfPoint contour) {
+        List<Integer> indexes = hull.toList();
+        List<Point> points = new ArrayList<>();
+        MatOfPoint point= new MatOfPoint();
+        for(Integer index:indexes) {
+            points.add(contour.toList().get(index));
+        }
+        point.fromList(points);
+        return point;
     }
 
     private List<Double> evaluateContours(List<MatOfPoint> contours, List<MatOfPoint> templates)

@@ -9,6 +9,17 @@
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="opencv-310" level="project" />
-    <orderEntry type="module" module-name="FruitRecognitionLib" exported="" />
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/out/artifacts/FruitRecognitionLib_jar/FruitRecognitionLib.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/out/artifacts/FruitRecognitionLib_jar/FruitRecognitionLib.jar!/" />
+          <root url="file://$MODULE_DIR$/FruitRecognitionLib/src" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>

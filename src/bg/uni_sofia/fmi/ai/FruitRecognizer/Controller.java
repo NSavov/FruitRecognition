@@ -157,6 +157,9 @@ public class Controller implements Initializable {
                     directoryChooser.setTitle("Open Directory");
                     File file = directoryChooser.showDialog(stage);
 
+                    if(file == null)
+                      return;
+
                     TextInputDialog dialog = new TextInputDialog("");
                     dialog.setTitle("Fruit Name Dialog");
                     dialog.setHeaderText("What is the name of this fruit?");
@@ -166,6 +169,10 @@ public class Controller implements Initializable {
                     Optional<String> result = dialog.showAndWait();
                     if (result.isPresent()){
                         objectName=result.get();
+                    }
+                else
+                    {
+                        return;
                     }
 
                 if(objectName != null)
@@ -182,20 +189,6 @@ public class Controller implements Initializable {
         });
 
         resourceImagePath = "./resources/apple.jpg";
-//        try {
-//            contourRecognizer.train(new File("./resources/dataset"), new File("./output/data.txt"));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
-        try {
-            contourRecognizer.loadTrainingData(new File("./output/data.txt"));
-//            FruitHistogram fr = new FruitHistogram(contourRecognizer, "D:\\Work\\FruitRecognition\\resources\\dataset", "apple");
-//            fr.train();
-//            System.out.println(fr.compare(ImageProcessor.openSingleImage(new File(resourceImagePath)))+ "________________");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         startImageMode();
 

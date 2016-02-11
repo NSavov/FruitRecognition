@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/FruitRecognition.iml" filepath="$PROJECT_DIR$/FruitRecognition.iml" />
-      <module fileurl="file://$PROJECT_DIR$/FruitRecognitionLib/FruitRecognitionLib.iml" filepath="$PROJECT_DIR$/FruitRecognitionLib/FruitRecognitionLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/FruitRecognition.iml" filepath="$PROJECT_DIR$/FruitRecognition.iml" group="FruitRecognitionProject" />
+      <module fileurl="file://$PROJECT_DIR$/FruitRecognitionLib/FruitRecognitionLib.iml" filepath="$PROJECT_DIR$/FruitRecognitionLib/FruitRecognitionLib.iml" group="FruitRecognitionProject" />
     </modules>
   </component>
 </project>

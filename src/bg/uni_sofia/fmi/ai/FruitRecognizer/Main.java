@@ -33,7 +33,7 @@ public class Main extends Application {
         controller.setStage(primaryStage);
 
         ContourRecognizer contourRecognizer = new ContourRecognizer();
-        Mat image = ImageProcessor.openSingleImage(new File("./resources/images.jpg"));;//Imgcodecs.imread("./resources/Golden_01_1.JPG", Imgproc.COLOR_BGR2GRAY);
+        Mat image = ImageProcessor.openSingleImage(new File("./resources/apple.jpg"));;//Imgcodecs.imread("./resources/Golden_01_1.JPG", Imgproc.COLOR_BGR2GRAY);
         Mat imageHSV = new Mat(image.size(), CvType.CV_8U);
         Mat imageBlurr = new Mat(image.size(), CvType.CV_8U);
         Mat imageA = new Mat(image.size(), CvType.CV_8UC3);
