@@ -15,6 +15,10 @@ import org.opencv.imgproc.Imgproc;
 
 import java.io.*;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by Недко on 31.1.2016 г..
@@ -214,7 +218,7 @@ public class FruitRecognizer {
         switch(objectName)
         {
             case GREEN_APPLE:
-                loadTrainingDataInternal(objectName.trainingDataPathContours, objectName.trainingDataPathHistograms, objectName.name());
+//                loadTrainingDataInternal(objectName.trainingDataPathContours, objectName.trainingDataPathHistograms, objectName.name());
                 result = recognize(imgPath, objectName.name());
                 break;
 
@@ -263,7 +267,7 @@ public class FruitRecognizer {
         switch(objectName)
         {
             case GREEN_APPLE:
-                loadTrainingDataInternal(objectName.trainingDataPathContours, objectName.trainingDataPathHistograms, objectName.name());
+//                loadTrainingDataInternal(objectName.trainingDataPathContours, objectName.trainingDataPathHistograms, objectName.name());
                 result = recognizeAndDraw(imgPath, objectName.name());
                 break;
 
