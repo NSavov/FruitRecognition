@@ -7,10 +7,7 @@ import javafx.scene.image.Image;
 import javafx.scene.shape.Rectangle;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.Rect;
+import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.*;
@@ -27,7 +24,7 @@ public class FruitRecognizer {
     private static final String DATA_FILE_NAME = "training";
     private double similarityThreshold = 0.2;
     private HashMap<String, ObjectRecognizer> recognizers;
-
+    private double solidity = 0.6;
     /**
      * Puts library to temp dir and loads to memory
      */
@@ -171,8 +168,8 @@ public class FruitRecognizer {
 
     private boolean isChild(Rect parent, Rect rect)
     {
-        return parent.x < rect.x && parent.y < rect.y &&
-                parent.x+parent.width > rect.x+rect.width && parent.y+parent.height > rect.y+rect.height;
+        return parent.x <= rect.x && parent.y <= rect.y &&
+                parent.x+parent.width >= rect.x+rect.width && parent.y+parent.height >= rect.y+rect.height;
     }
 
     private void removeChildren(List<MatOfPoint> objectContours)
@@ -247,13 +244,14 @@ public class FruitRecognizer {
         fruitHistogram = recognizers.get(objectName).fruitHistogram;
 
         Mat mat = ImageProcessor.openSingleImage(new File(imgPath));
-        Mat cleanMat = mat.clone();
-        Mat resized = new Mat();
-//        Imgproc.resize(mat, resized, new Size(300, 300));
+        double ratio = ((double) mat.height())/((double)mat.width());
+        if(mat.width() > 1024)
+            Imgproc.resize(mat, mat, new Size(1024.0, 1024.0*ratio));
+        contourRecognizer.setContourSolidity(solidity);
         objectContours = contourRecognizer.findContours(mat, similarityThreshold);
 //        System.out.println("tova trqbva da e chisloto " + fruitHistogram.compare(objectContours, cleanMat, 0.8f)) ;
-        objectContours = fruitHistogram.compare(objectContours, cleanMat, 0.8f);
-//        removeChildren(objectContours);
+//        objectContours = fruitHistogram.compare(objectContours, cleanMat, 0.8f);
+        removeChildren(objectContours);
         return  objectContours;
     }
 
@@ -291,6 +289,9 @@ public class FruitRecognizer {
         Mat resultImg = ImageProcessor.openSingleImage(new File(imgPath));
 //        double ratio = resultImg.height()/resultImg.width();
 //        Imgproc.resize( resultImg, resultImg, new Size(300, (int)(ratio*300.0)));
+        double ratio = ((double) resultImg.height())/((double)resultImg.width());
+        if(resultImg.width() > 1024)
+            Imgproc.resize(resultImg, resultImg, new Size(1024.0, 1024.0*ratio));
         ContourRecognizer.drawContours(resultImg, contours);
        Image result = ImageProcessor.matToImage(resultImg);
 
@@ -301,4 +302,5 @@ public class FruitRecognizer {
     {
         similarityThreshold = threshold;
     }
+    public void setSolidityThreshold(double solidity){ this.solidity = solidity; }
 }

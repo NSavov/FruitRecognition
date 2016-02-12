@@ -147,6 +147,13 @@ public class ContourRecognizer {
         }
     }
 
+    private double contourSolidity = 0.6;
+
+    public void setContourSolidity(double solidity)
+    {
+        contourSolidity = solidity;
+    }
+
     private void solidityProcessing(List<MatOfPoint> contours)
     {
         //solidity check
@@ -158,7 +165,7 @@ public class ContourRecognizer {
             double contourArea = Imgproc.contourArea(contour);
             double hullArea = Imgproc.contourArea(hullContour);
 
-            if(contourArea/hullArea < 0.1) {
+            if(contourArea/hullArea < contourSolidity) {
                 contours.remove(i);
                 contours.add(i, hullContour);
             }
@@ -181,8 +188,8 @@ public class ContourRecognizer {
 
         List<MatOfPoint> contours = getAllContours(img.clone());
 //        filter(contours, (Math.max(img.rows(), img.cols())/17)*(Math.min(img.rows(), img.cols())/17));
-        filterByHeight(contours, img.rows()/50);
-        filterByWidth(contours, img.cols()/50);
+        filterByHeight(contours, img.rows()/30);
+        filterByWidth(contours, img.cols()/30);
 
         solidityProcessing(contours);
         List<Double> values = evaluateContours(contours, templates);

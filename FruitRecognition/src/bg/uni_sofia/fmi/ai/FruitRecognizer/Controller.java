@@ -70,11 +70,11 @@ public class Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
         fruitRecognizer = new FruitRecognizer();
-        try {
-            fruitRecognizer.train("D:\\git\\FruitRecognition\\FruitRecognition\\resources\\dataset", "D:\\git\\FruitRecognition\\FruitRecognitionLib\\resources\\recognitionData", "GREEN_APPLE");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            fruitRecognizer.train("FruitRecognition\\FruitRecognition\\resources\\dataset", "D:\\git\\FruitRecognition\\FruitRecognitionLib\\resources\\recognitionData", "GREEN_APPLE");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         recognizeFromImageButton.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -91,6 +91,9 @@ public class Controller implements Initializable {
                     FruitRecognizer.EObjectName.values();
                     String objectName = (String)objectListView.getValue();
                     boolean foundDefault = false;
+
+                    fruitRecognizer.setSimilarityThreshold(0.05);
+
                     for(FruitRecognizer.EObjectName obj : FruitRecognizer.EObjectName.values())
                     {
                         if(obj.name.toLowerCase().equals(objectName.toLowerCase())) {
