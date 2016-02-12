@@ -14,7 +14,6 @@ import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.*;
-import java.util.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -248,11 +247,13 @@ public class FruitRecognizer {
         fruitHistogram = recognizers.get(objectName).fruitHistogram;
 
         Mat mat = ImageProcessor.openSingleImage(new File(imgPath));
+        Mat cleanMat = mat.clone();
         Mat resized = new Mat();
 //        Imgproc.resize(mat, resized, new Size(300, 300));
         objectContours = contourRecognizer.findContours(mat, similarityThreshold);
-        objectContours = fruitHistogram.compare(objectContours, mat, 0.8f);
-        removeChildren(objectContours);
+//        System.out.println("tova trqbva da e chisloto " + fruitHistogram.compare(objectContours, cleanMat, 0.8f)) ;
+        objectContours = fruitHistogram.compare(objectContours, cleanMat, 0.8f);
+//        removeChildren(objectContours);
         return  objectContours;
     }
 

@@ -19,7 +19,7 @@ public class FruitHistogram {
     public String fruitName;
     public static int counter = 0;
     public ContourRecognizer contourRecognizer;
-    public List<Mat> histograms;
+    public ArrayList<ArrayList<Mat>> histograms;
 
     public String path;
 
@@ -30,12 +30,12 @@ public class FruitHistogram {
     public FruitHistogram(ContourRecognizer contourRecognizer, String fruit) {
         this.fruitName = fruit;
         this.contourRecognizer = contourRecognizer;
-        this.histograms = new ArrayList<Mat>();
+        this.histograms = new ArrayList< ArrayList<Mat> >();
 
 
     }
     public FruitHistogram() {
-        this.histograms = new ArrayList<Mat>();
+        this.histograms = new ArrayList< ArrayList<Mat> >();
 
     }
 
@@ -48,21 +48,33 @@ public class FruitHistogram {
 //            this.histograms.add(makeHistogram(image));
 //        }
 //    }
-
     public boolean hasTrainingData()
     {
         return histograms != null && !histograms.isEmpty();
     }
 
-    public Mat makeHistogram(MatOfPoint contur, Mat image) {
+
+
+    public ArrayList<Mat> makeHistogram(MatOfPoint contur, Mat image) {
+
         List<MatOfPoint> result = new ArrayList<MatOfPoint>();
-        List<Mat> images = new ArrayList<Mat>();
-        Mat histogram = new Mat();
-        result.add(contur);
+        List<Mat> imageR = new ArrayList<Mat>();
+        List<Mat> imageG = new ArrayList<Mat>();
+        List<Mat> imageB = new ArrayList<Mat>();
+        List<Mat> normalized = new ArrayList<Mat>();
+        Mat histogramR = new Mat();
+        Mat histogramG = new Mat();
+        Mat histogramB = new Mat();
+        Mat normalaizedHistogram = new Mat();
+        Mat imageToGray = new Mat();
+        Mat imageToHSv = new Mat();
+
+
 
         Mat mask = Mat.zeros(image.height(),image.width(), CvType.CV_8U);
         Imgproc.drawContours(mask, result, 0, new Scalar(255,255,255), -1);
-
+//        Imgcodecs.imwrite("./output/training/masks/aa" + Integer.toString(counter++) + ".jpg", imageToGray);
+//        Imgcodecs.imwrite("./output/training/masks/ab" + Integer.toString(counter++) + ".jpg", normalHist);
 //        Imgcodecs.imwrite("./output/training/masks/rgb" + Integer.toString(counter++) + ".jpg", image);
 //        Imgcodecs.imwrite("./output/training/masks/gray" + Integer.toString(counter++) + ".jpg", imageToGray);
 //        Imgcodecs.imwrite("./output/training/masks/hsv" + Integer.toString(counter++) + ".jpg", imageToHSv);
@@ -80,19 +92,37 @@ public class FruitHistogram {
         i++;
         Imgcodecs.imwrite("./FruitRecognition/output/training/masks/ab" + Integer.toString(counter++) + ".jpg", maskCroppedResized);
 
-        Mat imageToGray = new Mat();
-        Mat imageToHSv = new Mat();
         Imgproc.cvtColor(cropResized, imageToGray, Imgproc.COLOR_RGB2GRAY);
         Imgproc.cvtColor(cropResized,imageToHSv, Imgproc.COLOR_RGB2HSV);
 
-        images.add(cropResized);
-        images.add(imageToGray);
-        images.add(imageToHSv);
-        Imgproc.calcHist(images, new MatOfInt(2, 0), maskCroppedResized, histogram, new MatOfInt(25, 25), new MatOfFloat(0,256, 0, 256));
-//        System.out.println(histogram.dump());
         Mat normalHist = new Mat();
+        Imgproc.equalizeHist(imageToGray, normalHist);
+        result.add(contur);
+        imageR.add(imageToHSv);
+        imageG.add(imageToHSv);
+        imageB.add(imageToHSv);
+//        images.add(imageToGray);
+        normalized.add(normalHist);
+//        images.add(imageToHSv);
+        Imgproc.calcHist(imageR, new MatOfInt(0), maskCroppedResized, histogramR, new MatOfInt(25), new MatOfFloat(0,140));
+        Imgproc.calcHist(imageG, new MatOfInt(1), maskCroppedResized, histogramG, new MatOfInt(25), new MatOfFloat(0,140));
+        Imgproc.calcHist(imageB, new MatOfInt(2), maskCroppedResized, histogramB, new MatOfInt(25), new MatOfFloat(0,140));
+        Imgproc.calcHist(normalized, new MatOfInt(0), maskCroppedResized, normalaizedHistogram, new MatOfInt(25), new MatOfFloat(0,256));
+//        Imgcodecs.imwrite("./output/training/masks/ab" + Integer.toString(counter++) + ".jpg", histogram);
+        Mat histogramRnormalaize = new Mat();
+        Mat histogramGnormalaize = new Mat();
+        Mat histogramBnormalaize = new Mat();
+        Core.normalize(histogramR, histogramRnormalaize);
+        Core.normalize(histogramG, histogramGnormalaize);
+        Core.normalize(histogramB, histogramBnormalaize);
+
 //        Imgproc.equalizeHist(histogram, normalHist);
-        return histogram;
+        ArrayList<Mat> allHistograms = new ArrayList<Mat>();
+        allHistograms.add(histogramRnormalaize);
+        allHistograms.add(histogramGnormalaize);
+        allHistograms.add(histogramBnormalaize);
+        allHistograms.add(normalaizedHistogram);
+        return allHistograms;
     }
 
     int i=0;
@@ -100,16 +130,24 @@ public class FruitHistogram {
         histograms.add(makeHistogram(contur,image));
     }
 
+    public float compareHistograms(List<Mat> histogram1, List<Mat> histogram2 ) {
+        double sum = 0;
+        for(int i = 0 ; i < histogram1.size(); i++) {
+//            System.out.println(Imgproc.compareHist(histogram1.get(i), histogram2.get(i), 0));
+            sum += Math.abs(Imgproc.compareHist(histogram1.get(i), histogram2.get(i), 0));
+        }
+        return (float) sum / histogram1.size();
+    }
+
     public List<MatOfPoint> compare(List<MatOfPoint> contures, Mat image, float threshold) {
         float maxComparement = 0;
         List<MatOfPoint> result = new ArrayList<MatOfPoint>();
         System.out.println(this.histograms.size());
         for(MatOfPoint contur : contures) {
-
-            Mat tempHistogram = makeHistogram(contur, image);
-            for (Mat hist : this.histograms) {
-//                maxComparement = (float) Math.max(maxComparement, Imgproc.compareHist(hist, tempHistogram, 0));
-                if (Imgproc.compareHist(hist, tempHistogram, 0) >= threshold) {
+            List<Mat> tempHistogram = makeHistogram(contur, image);
+            for (List<Mat> hist : this.histograms) {
+                maxComparement = (float) Math.max(maxComparement, compareHistograms(tempHistogram, hist));
+                if (compareHistograms(tempHistogram, hist) >= threshold) {
                     result.add(new MatOfPoint(contur));
                     break;
                 }
@@ -209,7 +247,7 @@ public class FruitHistogram {
     public void exportTrainingData(File f) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(f));
-            writer.write(matToJson(this.histograms));
+//            writer.write(matToJson(this.histograms));
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -222,7 +260,7 @@ public class FruitHistogram {
             f.read(data);
             String s = new String(data);
             if (s.length() > 0) {
-                this.histograms = matFromJson(s);
+//                this.histograms = matFromJson(s);
             }
         } catch (IOException e) {
             e.printStackTrace();
