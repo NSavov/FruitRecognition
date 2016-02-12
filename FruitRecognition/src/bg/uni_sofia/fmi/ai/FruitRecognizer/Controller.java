@@ -89,8 +89,19 @@ public class Controller implements Initializable {
 
                 try {
                     FruitRecognizer.EObjectName.values();
-                    objectListView.getValue();
-                    image = fruitRecognizer.recognizeAndDraw(file.getAbsolutePath(), FruitRecognizer.EObjectName.GREEN_APPLE);
+                    String objectName = (String)objectListView.getValue();
+                    boolean foundDefault = false;
+                    for(FruitRecognizer.EObjectName obj : FruitRecognizer.EObjectName.values())
+                    {
+                        if(obj.name.toLowerCase().equals(objectName.toLowerCase())) {
+                            image = fruitRecognizer.recognizeAndDraw(file.getAbsolutePath(), obj);
+                            foundDefault = true;
+                            break;
+                        }
+                    }
+
+                    if(!foundDefault)
+                        image = fruitRecognizer.recognizeAndDraw(file.getAbsolutePath(), objectName);
                     imageView.setImage(image);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -175,6 +186,7 @@ public class Controller implements Initializable {
 
                 try {
                     fruitRecognizer.loadTrainingData(file.getPath(), histogramFile.getPath(), objectName);
+                    objectListView.getItems().add(objectName);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }

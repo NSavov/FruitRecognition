@@ -71,7 +71,7 @@ public class FruitRecognizer {
         GREEN_APPLE("green apple", "/recognitionData/" + DATA_FILE_NAME + "_green_apple.contours",
                 "/recognitionData/" + DATA_FILE_NAME + "_green_apple.histograms");
 
-        private final String name;
+        public  final String name;
         private final InputStream trainingDataPathContours;
         private final InputStream trainingDataPathHistograms;
 

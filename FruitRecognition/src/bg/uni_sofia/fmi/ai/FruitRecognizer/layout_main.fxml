@@ -25,11 +25,11 @@
                         <ComboBox fx:id="objectListView">
                             <items>
                                 <javafx.collections.FXCollections fx:factory="observableArrayList">
-                                    <String fx:value="Apple" />
+                                    <String fx:value="Green apple" />
                                 </javafx.collections.FXCollections>
                             </items>
                             <value>
-                                <String fx:value="Apple" />
+                                <String fx:value="Green apple" />
                             </value>
                         </ComboBox>
                     <Button fx:id="recognizeFromImageButton" text="Recognize from image"/>

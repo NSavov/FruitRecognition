@@ -181,8 +181,8 @@ public class ContourRecognizer {
 
         List<MatOfPoint> contours = getAllContours(img.clone());
 //        filter(contours, (Math.max(img.rows(), img.cols())/17)*(Math.min(img.rows(), img.cols())/17));
-        filterByHeight(contours, img.rows()/70);
-        filterByWidth(contours, img.cols()/70);
+        filterByHeight(contours, img.rows()/50);
+        filterByWidth(contours, img.cols()/50);
 
         solidityProcessing(contours);
         List<Double> values = evaluateContours(contours, templates);
