@@ -58,14 +58,7 @@ public class FruitHistogram {
         List<MatOfPoint> result = new ArrayList<MatOfPoint>();
         List<Mat> images = new ArrayList<Mat>();
         Mat histogram = new Mat();
-        Mat imageToGray = new Mat();
-        Mat imageToHSv = new Mat();
-        Imgproc.cvtColor(image, imageToGray, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.cvtColor(image,imageToHSv, Imgproc.COLOR_RGB2HSV);
         result.add(contur);
-        images.add(image);
-        images.add(imageToGray);
-        images.add(imageToHSv);
 
         Mat mask = Mat.zeros(image.height(),image.width(), CvType.CV_8U);
         Imgproc.drawContours(mask, result, 0, new Scalar(255,255,255), -1);
@@ -73,13 +66,36 @@ public class FruitHistogram {
 //        Imgcodecs.imwrite("./output/training/masks/rgb" + Integer.toString(counter++) + ".jpg", image);
 //        Imgcodecs.imwrite("./output/training/masks/gray" + Integer.toString(counter++) + ".jpg", imageToGray);
 //        Imgcodecs.imwrite("./output/training/masks/hsv" + Integer.toString(counter++) + ".jpg", imageToHSv);
-        Imgcodecs.imwrite("./output/training/masks/ab" + Integer.toString(counter++) + ".jpg", mask);
-        Imgproc.calcHist(images, new MatOfInt(2, 0), mask, histogram, new MatOfInt(25, 25), new MatOfFloat(0,256, 0, 256));
+
+        Rect roi = Imgproc.boundingRect(contur);
+        Mat cropped = new Mat(image, roi);
+        Mat cropResized = new Mat();
+
+        double ratio = ((double) roi.height)/((double)roi.width);
+        Mat maskCropped = new Mat(mask, roi);
+        Mat maskCroppedResized = new Mat(new Size(300.0, ratio*300.0 ) ,CvType.CV_8U);
+        Imgproc.resize(cropped, cropResized, new Size(300.0, ratio*300.0 ));
+        Imgproc.resize(maskCropped, maskCroppedResized, new Size(300.0, ratio*300.0 ));
+        Imgcodecs.imwrite("./asdf/" + String.valueOf(i) + ".png", cropResized);
+        i++;
+        Imgcodecs.imwrite("./FruitRecognition/output/training/masks/ab" + Integer.toString(counter++) + ".jpg", maskCroppedResized);
+
+        Mat imageToGray = new Mat();
+        Mat imageToHSv = new Mat();
+        Imgproc.cvtColor(cropResized, imageToGray, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.cvtColor(cropResized,imageToHSv, Imgproc.COLOR_RGB2HSV);
+
+        images.add(cropResized);
+        images.add(imageToGray);
+        images.add(imageToHSv);
+        Imgproc.calcHist(images, new MatOfInt(2, 0), maskCroppedResized, histogram, new MatOfInt(25, 25), new MatOfFloat(0,256, 0, 256));
 //        System.out.println(histogram.dump());
         Mat normalHist = new Mat();
 //        Imgproc.equalizeHist(histogram, normalHist);
         return histogram;
     }
+
+    int i=0;
     public void train(MatOfPoint contur, Mat image) {
         histograms.add(makeHistogram(contur,image));
     }

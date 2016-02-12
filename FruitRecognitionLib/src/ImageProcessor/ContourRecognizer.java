@@ -37,13 +37,14 @@ public class ContourRecognizer {
 
             ArrayList<MatOfPoint> test = new ArrayList<>();
             final MatOfPoint largestContour = contours.get(ind);
-            solidityProcessing(new ArrayList<MatOfPoint>(){{add(largestContour);}});
-            test.add(contours.get(ind));
+            List<MatOfPoint> solidLargestContour = new ArrayList<MatOfPoint>(){{add(largestContour);}};
+            solidityProcessing(solidLargestContour);
+            test.add(solidLargestContour.get(0));
             Mat mat = img.clone();
             drawContours(mat, test);
             Imgcodecs.imwrite("./output/training/"+String.valueOf(k) + ".jpg", mat);
             k++;
-            templates.add(contours.get(ind));
+            templates.add(solidLargestContour.get(0));
         }
 
         BufferedWriter writer = null;
@@ -80,11 +81,11 @@ public class ContourRecognizer {
             int ind = findLargestContour(contours);
             if(ind < 0)
                 return null;
+        List<MatOfPoint> solidLargestContour = new ArrayList<MatOfPoint>(){{add(contours.get(ind));}};
+        solidityProcessing(solidLargestContour);
+            templates.add(solidLargestContour.get(0));
 
-        solidityProcessing(new ArrayList<MatOfPoint>(){{add(contours.get(ind));}});
-            templates.add(contours.get(ind));
-
-        return contours.get(ind);
+        return solidLargestContour.get(0);
     }
 
     public void exportTrainingData(File dest) throws IOException {
