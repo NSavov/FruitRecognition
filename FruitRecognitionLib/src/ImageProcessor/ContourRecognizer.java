@@ -6,7 +6,6 @@ import org.opencv.imgproc.Imgproc;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -188,8 +187,11 @@ public class ContourRecognizer {
 
         List<MatOfPoint> contours = getAllContours(img.clone());
 //        filter(contours, (Math.max(img.rows(), img.cols())/17)*(Math.min(img.rows(), img.cols())/17));
-        filterByHeight(contours, img.rows()/30);
-        filterByWidth(contours, img.cols()/30);
+
+        filterByHeight(contours, img.rows()/20);
+        filterByWidth(contours, img.cols()/20);
+        filterByHeight(contours, 150);
+        filterByWidth(contours, 150);
 
         solidityProcessing(contours);
         List<Double> values = evaluateContours(contours, templates);

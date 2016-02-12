@@ -13,6 +13,7 @@ import java.util.List;
  * Created by yordan on 1/13/2016.
  */
 public class FruitHistogram {
+    public static final double RESIZE_CONSTANT = 150.0;
     public Mat result;
     public Mat mask;
     public Mat image, histogram;
@@ -70,14 +71,14 @@ public class FruitHistogram {
         Mat imageToHSv = new Mat();
 
 
-
+        result.add(contur);
         Mat mask = Mat.zeros(image.height(),image.width(), CvType.CV_8U);
-        Imgproc.drawContours(mask, result, 0, new Scalar(255,255,255), -1);
+        Imgproc.drawContours(mask,  result, 0, new Scalar(255,255,255), -1);
 //        Imgcodecs.imwrite("./output/training/masks/aa" + Integer.toString(counter++) + ".jpg", imageToGray);
 //        Imgcodecs.imwrite("./output/training/masks/ab" + Integer.toString(counter++) + ".jpg", normalHist);
 //        Imgcodecs.imwrite("./output/training/masks/rgb" + Integer.toString(counter++) + ".jpg", image);
 //        Imgcodecs.imwrite("./output/training/masks/gray" + Integer.toString(counter++) + ".jpg", imageToGray);
-//        Imgcodecs.imwrite("./output/training/masks/hsv" + Integer.toString(counter++) + ".jpg", imageToHSv);
+
 
         Rect roi = Imgproc.boundingRect(contur);
         Mat cropped = new Mat(image, roi);
@@ -85,43 +86,54 @@ public class FruitHistogram {
 
         double ratio = ((double) roi.height)/((double)roi.width);
         Mat maskCropped = new Mat(mask, roi);
-        Mat maskCroppedResized = new Mat(new Size(300.0, ratio*300.0 ) ,CvType.CV_8U);
-        Imgproc.resize(cropped, cropResized, new Size(300.0, ratio*300.0 ));
-        Imgproc.resize(maskCropped, maskCroppedResized, new Size(300.0, ratio*300.0 ));
-        Imgcodecs.imwrite("./asdf/" + String.valueOf(i) + ".png", cropResized);
+        Mat maskCroppedResized = new Mat(new Size(RESIZE_CONSTANT, ratio*RESIZE_CONSTANT ) ,CvType.CV_8U);
+        Imgproc.resize(cropped, cropResized, new Size(RESIZE_CONSTANT, ratio*RESIZE_CONSTANT ));
+        Imgproc.resize(maskCropped, maskCroppedResized, new Size(RESIZE_CONSTANT, ratio*RESIZE_CONSTANT ));
+//        Imgcodecs.imwrite("./asdf/" + String.valueOf(i) + ".png", cropResized);
         i++;
-        Imgcodecs.imwrite("./FruitRecognition/output/training/masks/ab" + Integer.toString(counter++) + ".jpg", maskCroppedResized);
-
-        Imgproc.cvtColor(cropResized, imageToGray, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.cvtColor(cropResized,imageToHSv, Imgproc.COLOR_RGB2HSV);
+//
+        Imgcodecs.imwrite("./output/training/masks/hsv" + Integer.toString(i++) + ".jpg", cropped);
+        Imgcodecs.imwrite("./output/training/masks/a" + Integer.toString(i++) + ".jpg", maskCropped);
+        Imgproc.cvtColor(cropped, imageToGray, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.cvtColor(cropped,imageToHSv, Imgproc.COLOR_RGB2HSV);
+//        Imgcodecs.imwrite("./output/training/masks/ab" + Integer.toString(counter++) + ".jpg", imageToHSv);
 
         Mat normalHist = new Mat();
-        Imgproc.equalizeHist(imageToGray, normalHist);
-        result.add(contur);
+//        Imgproc.equalizeHist(imageToGray, normalHist);
+
         imageR.add(imageToHSv);
+//        imageR.add(imageToHSv);
+
         imageG.add(imageToHSv);
         imageB.add(imageToHSv);
 //        images.add(imageToGray);
-        normalized.add(normalHist);
+//        normalized.add(normalHist);
+        normalized.add(imageToGray);
 //        images.add(imageToHSv);
-        Imgproc.calcHist(imageR, new MatOfInt(0), maskCroppedResized, histogramR, new MatOfInt(25), new MatOfFloat(0,140));
-        Imgproc.calcHist(imageG, new MatOfInt(1), maskCroppedResized, histogramG, new MatOfInt(25), new MatOfFloat(0,140));
-        Imgproc.calcHist(imageB, new MatOfInt(2), maskCroppedResized, histogramB, new MatOfInt(25), new MatOfFloat(0,140));
-        Imgproc.calcHist(normalized, new MatOfInt(0), maskCroppedResized, normalaizedHistogram, new MatOfInt(25), new MatOfFloat(0,256));
-//        Imgcodecs.imwrite("./output/training/masks/ab" + Integer.toString(counter++) + ".jpg", histogram);
+        Imgproc.calcHist(imageR, new MatOfInt(0), maskCropped, histogramR, new MatOfInt(25), new MatOfFloat(0,140));
+        Imgproc.calcHist(imageG, new MatOfInt(1), maskCropped, histogramG, new MatOfInt(25), new MatOfFloat(0,140));
+        Imgproc.calcHist(imageB, new MatOfInt(2), maskCropped, histogramB, new MatOfInt(25), new MatOfFloat(0,140));
+        Imgproc.calcHist(normalized, new MatOfInt(0), maskCropped, normalaizedHistogram, new MatOfInt(25), new MatOfFloat(0,256));
+//        Imgcodecs.imwrite("./output/training/masks/ab" + Integer.toString(counter++) + ".jpg", histogramR);
+
         Mat histogramRnormalaize = new Mat();
         Mat histogramGnormalaize = new Mat();
         Mat histogramBnormalaize = new Mat();
-        Core.normalize(histogramR, histogramRnormalaize);
-        Core.normalize(histogramG, histogramGnormalaize);
-        Core.normalize(histogramB, histogramBnormalaize);
+//       histogramRnormalaize = histogramR;
+//        histogramGnormalaize = histogramG;
+//        histogramBnormalaize = histogramB;
 
+//        Core.normalize(histogramR, histogramRnormalaize,0,100,Core.NORM_MINMAX, -1);
+//        Core.normalize(histogramG, histogramGnormalaize,0,100,Core.NORM_MINMAX, -1);
+//        Core.normalize(histogramB, histogramBnormalaize,0,100,Core.NORM_MINMAX, -1);
+
+        Imgcodecs.imwrite("./output/training/masks/ab" + Integer.toString(counter++) + ".jpg", histogramRnormalaize, new MatOfInt(0,1));
 //        Imgproc.equalizeHist(histogram, normalHist);
         ArrayList<Mat> allHistograms = new ArrayList<Mat>();
         allHistograms.add(histogramRnormalaize);
         allHistograms.add(histogramGnormalaize);
         allHistograms.add(histogramBnormalaize);
-        allHistograms.add(normalaizedHistogram);
+//        allHistograms.add(normalaizedHistogram);
         return allHistograms;
     }
 
@@ -134,7 +146,11 @@ public class FruitHistogram {
         double sum = 0;
         for(int i = 0 ; i < histogram1.size(); i++) {
 //            System.out.println(Imgproc.compareHist(histogram1.get(i), histogram2.get(i), 0));
-            sum += Math.abs(Imgproc.compareHist(histogram1.get(i), histogram2.get(i), 0));
+//            Mat normhistogram1 = new Mat();
+//            Mat normhistogram2 = new Mat();
+//            Core.normalize(histogram1.get(i), normhistogram1,0,1,Core.NORM_MINMAX, -1);
+//            Core.normalize(histogram2.get(i), normhistogram2,0,1,Core.NORM_MINMAX, -1);
+            sum += Imgproc.compareHist(histogram1.get(i), histogram2.get(i), 0);
         }
         return (float) sum / histogram1.size();
     }
@@ -153,6 +169,7 @@ public class FruitHistogram {
                 }
             }
         }
+        System.out.println("Chisloto e " + maxComparement);
 //        return maxComparement;
         return result;
     }
@@ -189,65 +206,74 @@ public class FruitHistogram {
 //        return makeHistogram(ImageProcessor.openSingleImage(imagePath));
 //    }
 
-    public static String matToJson(List <Mat> mats){
-        JsonArray ja = new JsonArray();
+    public static String matToJson(ArrayList<ArrayList<Mat>> mats){
+
         Gson gson = new Gson();
-        for(Mat mat: mats) {
-            JsonObject obj = new JsonObject();
+        JsonArray arrayOfMat = new JsonArray();
+        for(List<Mat> listMat: mats) {
 
-            if (mat.isContinuous()) {
-                int cols = mat.cols();
-                int rows = mat.rows();
-                int elemSize = (int) mat.elemSize();
+            JsonArray ja = new JsonArray();
+            for(Mat mat : listMat) {
+                JsonObject obj = new JsonObject();
+                if (mat.isContinuous()) {
+                    int cols = mat.cols();
+                    int rows = mat.rows();
+                    int elemSize = (int) mat.elemSize();
 
-                float[] data = new float[cols * rows];
-                mat.get(0, 0, data);
+                    float[] data = new float[cols * rows];
+                    mat.get(0, 0, data);
 
-                obj.addProperty("rows", mat.rows());
-                obj.addProperty("cols", mat.cols());
-                obj.addProperty("type", mat.type());
+                    obj.addProperty("rows", mat.rows());
+                    obj.addProperty("cols", mat.cols());
+                    obj.addProperty("type", mat.type());
 
-                // We cannot set binary data to a json object, so:
-                // Encoding data byte array to Base64.
+                    // We cannot set binary data to a json object, so:
+                    // Encoding data byte array to Base64.
 //            String dataString = new String(Base64.encodeBase64(data));
 //
 
 
-
-                obj.addProperty("data", gson.toJson(data));
-                String json = gson.toJson(obj);
-                ja.add(obj);
-            } else {
-                System.out.println("neshto se obarka");
+                    obj.addProperty("data", gson.toJson(data));
+                    String json = gson.toJson(obj);
+                    ja.add(obj);
+                } else {
+                    System.out.println("neshto se obarka");
+                }
+                arrayOfMat.add(ja);
             }
 
         }
-        return gson.toJson(ja);
+        return gson.toJson(arrayOfMat);
     }
 
-    public static List<Mat> matFromJson(String json){
+    public static ArrayList<ArrayList<Mat>> matFromJson(String json){
         Gson gson = new Gson();
         JsonParser parser = new JsonParser();
-        List<Mat> mats = new ArrayList<Mat>();
+        ArrayList<ArrayList<Mat>> result = new ArrayList<ArrayList<Mat>>();
+        ArrayList<Mat> mats = new ArrayList<Mat>();
         JsonArray jsonArray = parser.parse(json).getAsJsonArray();
-        for(JsonElement jsonElement: jsonArray) {
-            JsonObject jsonObject = jsonElement.getAsJsonObject();
-            int rows = jsonObject.get("rows").getAsInt();
-            int cols = jsonObject.get("cols").getAsInt();
-            int type = jsonObject.get("type").getAsInt();
 
-            float[] data= gson.fromJson(jsonObject.get("data").getAsString(), float[].class);
-            Mat mat = new Mat(rows, cols, type);
-            mat.put(0, 0, data);
-            mats.add(mat);
+        for(JsonElement jsonElement: jsonArray) {
+            for(JsonElement je : jsonElement.getAsJsonArray()) {
+                JsonObject jsonObject = je.getAsJsonObject();
+                int rows = jsonObject.get("rows").getAsInt();
+                int cols = jsonObject.get("cols").getAsInt();
+                int type = jsonObject.get("type").getAsInt();
+
+                float[] data = gson.fromJson(jsonObject.get("data").getAsString(), float[].class);
+                Mat mat = new Mat(rows, cols, type);
+                mat.put(0, 0, data);
+                mats.add(mat);
+            }
+            result.add(mats);
         }
-        return mats;
+        return result;
     }
 
     public void exportTrainingData(File f) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(f));
-//            writer.write(matToJson(this.histograms));
+            writer.write(matToJson(this.histograms));
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -260,7 +286,7 @@ public class FruitHistogram {
             f.read(data);
             String s = new String(data);
             if (s.length() > 0) {
-//                this.histograms = matFromJson(s);
+                this.histograms = matFromJson(s);
             }
         } catch (IOException e) {
             e.printStackTrace();
