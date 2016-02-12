@@ -15,7 +15,7 @@ public class Main extends Application {
         FXMLLoader fxmlLoader =new FXMLLoader(getClass().getResource("layout_main.fxml"));
         Parent root = fxmlLoader.load();
         primaryStage.setTitle("Fruit Recognizer");
-        Scene scene = new Scene(root, 300, 275);
+        Scene scene = new Scene(root, 800, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
 

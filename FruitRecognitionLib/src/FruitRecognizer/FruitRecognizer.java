@@ -25,8 +25,7 @@ import java.util.List;
  */
 public class FruitRecognizer {
 
-    private static final String CONTOUR_DATA_FILE_NAME = "training";
-    private static final String HISTOGRAM_DATA_FILE_NAME = "histogram";
+    private static final String DATA_FILE_NAME = "training";
     private double similarityThreshold = 0.2;
     private HashMap<String, ObjectRecognizer> recognizers;
 
@@ -70,8 +69,8 @@ public class FruitRecognizer {
     }
 
     public enum EObjectName{
-        GREEN_APPLE("green apple", "/recognitionData/" + CONTOUR_DATA_FILE_NAME + "_green_apple",
-                "/recognitionData/" + HISTOGRAM_DATA_FILE_NAME + "_green_apple");
+        GREEN_APPLE("green apple", "/recognitionData/" + DATA_FILE_NAME + "_green_apple.contours",
+                "/recognitionData/" + DATA_FILE_NAME + "_green_apple.histograms");
 
         private final String name;
         private final InputStream trainingDataPathContours;
@@ -110,8 +109,8 @@ public class FruitRecognizer {
             destFile.mkdirs();
         }
 
-        File contourData = new File(destFile, CONTOUR_DATA_FILE_NAME + "_" + objectName);
-        File histogramData = new File(destFile, HISTOGRAM_DATA_FILE_NAME + "_" + objectName);
+        File contourData = new File(destFile, DATA_FILE_NAME + "_" + objectName + ".contours");
+        File histogramData = new File(destFile, DATA_FILE_NAME + "_" + objectName + ".histograms");
         contourData.createNewFile();
         histogramData.createNewFile();
 
@@ -252,7 +251,6 @@ public class FruitRecognizer {
         Mat resized = new Mat();
 //        Imgproc.resize(mat, resized, new Size(300, 300));
         objectContours = contourRecognizer.findContours(mat, similarityThreshold);
-        //TODO: set up filtering by histogram here
         objectContours = fruitHistogram.compare(objectContours, mat, 0.8f);
         removeChildren(objectContours);
         return  objectContours;

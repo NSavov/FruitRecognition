@@ -14,7 +14,7 @@
 <VBox fx:controller="bg.uni_sofia.fmi.ai.FruitRecognizer.Controller"
       xmlns:fx="http://javafx.com/fxml" alignment="center" >
     <children>
-        <ScrollPane hbarPolicy="AS_NEEDED" vbarPolicy="AS_NEEDED">
+        <ScrollPane fx:id="scrollPane" hbarPolicy="AS_NEEDED" vbarPolicy="AS_NEEDED">
             <content>
              <ImageView fx:id="imageView" preserveRatio="true"/>
             </content>
@@ -34,6 +34,7 @@
                         </ComboBox>
                     <Button fx:id="recognizeFromImageButton" text="Recognize from image"/>
                     <Button fx:id="trainButton" text="Train"/>
+                    <Button fx:id="loadTrainingDataButton" text="Load training data"/>
                 </HBox>
             </children>
         </StackPane>

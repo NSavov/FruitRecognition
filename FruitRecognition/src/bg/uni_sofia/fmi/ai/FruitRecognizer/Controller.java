@@ -1,7 +1,5 @@
 package bg.uni_sofia.fmi.ai.FruitRecognizer;
 
-import ImageProcessor.ContourRecognizer;
-import ImageProcessor.ImageProcessor;
 import FruitRecognizer.FruitRecognizer;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -9,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -18,9 +17,9 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -29,16 +28,21 @@ public class Controller implements Initializable {
     private ImageView imageView;
 
     @FXML
+    private ScrollPane scrollPane;
+
+    @FXML
     private Button recognizeFromImageButton;
 
     @FXML
     private Button trainButton;
 
     @FXML
+    private Button loadTrainingDataButton;
+
+    @FXML
     private ComboBox objectListView;
 
     Stage stage;
-    String resourceImagePath;
     Image image;
     FruitRecognizer fruitRecognizer;
 
@@ -53,7 +57,7 @@ public class Controller implements Initializable {
             }
         });
 
-        imageView.fitWidthProperty().bind(stage.widthProperty());
+        imageView.fitWidthProperty().bind(scrollPane.widthProperty().subtract(15));
 //        imageView.fitHeightProperty().bind(stage.heightProperty());
     }
 
@@ -80,6 +84,8 @@ public class Controller implements Initializable {
                     return;
 
                 try {
+                    FruitRecognizer.EObjectName.values();
+                    objectListView.getValue();
                     image = fruitRecognizer.recognizeAndDraw(file.getAbsolutePath(), FruitRecognizer.EObjectName.GREEN_APPLE);
                     imageView.setImage(image);
                 } catch (IOException e) {
@@ -127,8 +133,51 @@ public class Controller implements Initializable {
             }
         });
 
-        resourceImagePath = "./resources/apple.jpg";
+        loadTrainingDataButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                FileChooser contourfileChooser = new FileChooser();
+                contourfileChooser.setTitle("Open Contour Data");
+                contourfileChooser.getExtensionFilters().addAll(
+                        new FileChooser.ExtensionFilter("Training Data", "*.contour"));
+                File file = contourfileChooser.showOpenDialog(stage);
 
+                if(file == null)
+                    return;
+
+                FileChooser histogramfileChooser = new FileChooser();
+                histogramfileChooser.setTitle("Open Contour Data");
+                histogramfileChooser.getExtensionFilters().addAll(
+                        new FileChooser.ExtensionFilter("Training Data", "*.contour"));
+                File histogramFile = histogramfileChooser.showOpenDialog(stage);
+
+                if(histogramFile == null)
+                    return;
+
+                TextInputDialog dialog = new TextInputDialog("");
+                dialog.setTitle("Fruit Name Dialog");
+                dialog.setHeaderText("What is the name of this fruit?");
+                dialog.setContentText("Please enter the name of the fruit:");
+
+                String  objectName = null;
+                Optional<String> result = dialog.showAndWait();
+                if (result.isPresent()){
+                    objectName=result.get();
+                }
+                else
+                {
+                    return;
+                }
+
+                try {
+                    fruitRecognizer.loadTrainingData(file.getPath(), histogramFile.getPath(), objectName);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        image = new Image(Controller.class.getResource("/title.png").toString());
         startImageMode();
 
     }

@@ -89,6 +89,7 @@ public class FruitHistogram {
         List<MatOfPoint> result = new ArrayList<MatOfPoint>();
         System.out.println(this.histograms.size());
         for(MatOfPoint contur : contures) {
+
             Mat tempHistogram = makeHistogram(contur, image);
             for (Mat hist : this.histograms) {
 //                maxComparement = (float) Math.max(maxComparement, Imgproc.compareHist(hist, tempHistogram, 0));
@@ -192,7 +193,7 @@ public class FruitHistogram {
     public void exportTrainingData(File f) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(f));
-//            writer.write(matToJson(this.histograms));
+            writer.write(matToJson(this.histograms));
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -205,7 +206,7 @@ public class FruitHistogram {
             f.read(data);
             String s = new String(data);
             if (s.length() > 0) {
-//                this.histograms = matFromJson(s);
+                this.histograms = matFromJson(s);
             }
         } catch (IOException e) {
             e.printStackTrace();
