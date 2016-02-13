@@ -2,7 +2,6 @@ package ImageProcessor;
 
 import com.google.gson.*;
 import org.opencv.core.*;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.*;
@@ -92,8 +91,8 @@ public class FruitHistogram {
 //        Imgcodecs.imwrite("./asdf/" + String.valueOf(i) + ".png", cropResized);
         i++;
 //
-        Imgcodecs.imwrite("./output/training/masks/hsv" + Integer.toString(i++) + ".jpg", cropped);
-        Imgcodecs.imwrite("./output/training/masks/a" + Integer.toString(i++) + ".jpg", maskCropped);
+//        Imgcodecs.imwrite("./output/training/masks/hsv" + Integer.toString(i++) + ".jpg", cropped);
+//        Imgcodecs.imwrite("./output/training/masks/a" + Integer.toString(i++) + ".jpg", maskCropped);
         Imgproc.cvtColor(cropResized, imageToGray, Imgproc.COLOR_RGB2GRAY);
         Imgproc.cvtColor(cropResized,imageToHSv, Imgproc.COLOR_RGB2HSV);
 //        Imgcodecs.imwrite("./output/training/masks/ab" + Integer.toString(counter++) + ".jpg", imageToHSv);
@@ -124,7 +123,7 @@ public class FruitHistogram {
 //        Core.normalize(histogramG, histogramGnormalaize,0,100,Core.NORM_MINMAX, -1);
 //        Core.normalize(histogramB, histogramBnormalaize,0,100,Core.NORM_MINMAX, -1);
 
-        Imgcodecs.imwrite("./output/training/masks/ab" + Integer.toString(counter++) + ".jpg", histogramRnormalaize, new MatOfInt(0,1));
+//        Imgcodecs.imwrite("./output/training/masks/ab" + Integer.toString(counter++) + ".jpg", histogramRnormalaize, new MatOfInt(0,1));
 //        Imgproc.equalizeHist(histogram, normalHist);
         ArrayList<Mat> allHistograms = new ArrayList<Mat>();
 //        allHistograms.add(histogramRnormalaize);
