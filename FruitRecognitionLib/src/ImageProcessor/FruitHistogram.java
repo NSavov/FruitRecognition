@@ -94,34 +94,31 @@ public class FruitHistogram {
 //
         Imgcodecs.imwrite("./output/training/masks/hsv" + Integer.toString(i++) + ".jpg", cropped);
         Imgcodecs.imwrite("./output/training/masks/a" + Integer.toString(i++) + ".jpg", maskCropped);
-        Imgproc.cvtColor(cropped, imageToGray, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.cvtColor(cropped,imageToHSv, Imgproc.COLOR_RGB2HSV);
+        Imgproc.cvtColor(cropResized, imageToGray, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.cvtColor(cropResized,imageToHSv, Imgproc.COLOR_RGB2HSV);
 //        Imgcodecs.imwrite("./output/training/masks/ab" + Integer.toString(counter++) + ".jpg", imageToHSv);
 
         Mat normalHist = new Mat();
-//        Imgproc.equalizeHist(imageToGray, normalHist);
+        Imgproc.equalizeHist(imageToGray, normalHist);
 
-        imageR.add(imageToHSv);
 //        imageR.add(imageToHSv);
-
-        imageG.add(imageToHSv);
-        imageB.add(imageToHSv);
-//        images.add(imageToGray);
-//        normalized.add(normalHist);
-        normalized.add(imageToGray);
+//        imageG.add(imageToHSv);
+//        imageB.add(imageToHSv);
+        imageR.add(cropResized);
+        imageG.add(cropResized);
+        imageB.add(cropResized);
+        normalized.add(normalHist);
+//        normalized.add(imageToGray);
 //        images.add(imageToHSv);
-        Imgproc.calcHist(imageR, new MatOfInt(0), maskCropped, histogramR, new MatOfInt(25), new MatOfFloat(0,140));
-        Imgproc.calcHist(imageG, new MatOfInt(1), maskCropped, histogramG, new MatOfInt(25), new MatOfFloat(0,140));
-        Imgproc.calcHist(imageB, new MatOfInt(2), maskCropped, histogramB, new MatOfInt(25), new MatOfFloat(0,140));
-        Imgproc.calcHist(normalized, new MatOfInt(0), maskCropped, normalaizedHistogram, new MatOfInt(25), new MatOfFloat(0,256));
+        Imgproc.calcHist(imageR, new MatOfInt(0), maskCroppedResized, histogramR, new MatOfInt(25), new MatOfFloat(0,140));
+        Imgproc.calcHist(imageG, new MatOfInt(1), maskCroppedResized, histogramG, new MatOfInt(25), new MatOfFloat(0,140));
+        Imgproc.calcHist(imageB, new MatOfInt(2), maskCroppedResized, histogramB, new MatOfInt(25), new MatOfFloat(0,140));
+        Imgproc.calcHist(normalized, new MatOfInt(0), maskCroppedResized, normalaizedHistogram, new MatOfInt(25), new MatOfFloat(0,256));
 //        Imgcodecs.imwrite("./output/training/masks/ab" + Integer.toString(counter++) + ".jpg", histogramR);
 
         Mat histogramRnormalaize = new Mat();
         Mat histogramGnormalaize = new Mat();
         Mat histogramBnormalaize = new Mat();
-//       histogramRnormalaize = histogramR;
-//        histogramGnormalaize = histogramG;
-//        histogramBnormalaize = histogramB;
 
 //        Core.normalize(histogramR, histogramRnormalaize,0,100,Core.NORM_MINMAX, -1);
 //        Core.normalize(histogramG, histogramGnormalaize,0,100,Core.NORM_MINMAX, -1);
@@ -130,10 +127,13 @@ public class FruitHistogram {
         Imgcodecs.imwrite("./output/training/masks/ab" + Integer.toString(counter++) + ".jpg", histogramRnormalaize, new MatOfInt(0,1));
 //        Imgproc.equalizeHist(histogram, normalHist);
         ArrayList<Mat> allHistograms = new ArrayList<Mat>();
-        allHistograms.add(histogramRnormalaize);
-        allHistograms.add(histogramGnormalaize);
-        allHistograms.add(histogramBnormalaize);
-//        allHistograms.add(normalaizedHistogram);
+//        allHistograms.add(histogramRnormalaize);
+//        allHistograms.add(histogramGnormalaize);
+//        allHistograms.add(histogramBnormalaize);
+        allHistograms.add(histogramR);
+        allHistograms.add(histogramG);
+        allHistograms.add(histogramB);
+        allHistograms.add(normalaizedHistogram);
         return allHistograms;
     }
 
@@ -142,27 +142,30 @@ public class FruitHistogram {
         histograms.add(makeHistogram(contur,image));
     }
 
-    public float compareHistograms(List<Mat> histogram1, List<Mat> histogram2 ) {
-        double sum = 0;
+    public double compareHistograms(List<Mat> histogram1, List<Mat> histogram2 ) {
+        int sum = 0;
         for(int i = 0 ; i < histogram1.size(); i++) {
 //            System.out.println(Imgproc.compareHist(histogram1.get(i), histogram2.get(i), 0));
-//            Mat normhistogram1 = new Mat();
-//            Mat normhistogram2 = new Mat();
-//            Core.normalize(histogram1.get(i), normhistogram1,0,1,Core.NORM_MINMAX, -1);
-//            Core.normalize(histogram2.get(i), normhistogram2,0,1,Core.NORM_MINMAX, -1);
-            sum += Imgproc.compareHist(histogram1.get(i), histogram2.get(i), 0);
+            Mat normhistogram1 = new Mat();
+            Mat normhistogram2 = new Mat();
+            Core.normalize(histogram1.get(i), normhistogram1,0,1,Core.NORM_MINMAX, -1);
+            Core.normalize(histogram2.get(i), normhistogram2,0,1,Core.NORM_MINMAX, -1);
+//            sum += Imgproc.compareHist(histogram1.get(i), histogram2.get(i), 0);
+             sum += Imgproc.compareHist(normhistogram1, normhistogram2, 1);
+//            sum = (int) Math.max(sum, Imgproc.compareHist(normhistogram1, normhistogram2, 1));
+
         }
-        return (float) sum / histogram1.size();
+        return sum ;
     }
 
     public List<MatOfPoint> compare(List<MatOfPoint> contures, Mat image, float threshold) {
-        float maxComparement = 0;
+        int maxComparement = Integer.MAX_VALUE;
         List<MatOfPoint> result = new ArrayList<MatOfPoint>();
         System.out.println(this.histograms.size());
         for(MatOfPoint contur : contures) {
             List<Mat> tempHistogram = makeHistogram(contur, image);
             for (List<Mat> hist : this.histograms) {
-                maxComparement = (float) Math.max(maxComparement, compareHistograms(tempHistogram, hist));
+                maxComparement = (int) Math.min(maxComparement, compareHistograms(tempHistogram, hist));
                 if (compareHistograms(tempHistogram, hist) >= threshold) {
                     result.add(new MatOfPoint(contur));
                     break;
@@ -250,10 +253,11 @@ public class FruitHistogram {
         Gson gson = new Gson();
         JsonParser parser = new JsonParser();
         ArrayList<ArrayList<Mat>> result = new ArrayList<ArrayList<Mat>>();
-        ArrayList<Mat> mats = new ArrayList<Mat>();
+
         JsonArray jsonArray = parser.parse(json).getAsJsonArray();
 
         for(JsonElement jsonElement: jsonArray) {
+            ArrayList<Mat> mats = new ArrayList<Mat>();
             for(JsonElement je : jsonElement.getAsJsonArray()) {
                 JsonObject jsonObject = je.getAsJsonObject();
                 int rows = jsonObject.get("rows").getAsInt();

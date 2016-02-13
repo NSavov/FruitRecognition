@@ -244,13 +244,15 @@ public class FruitRecognizer {
         fruitHistogram = recognizers.get(objectName).fruitHistogram;
 
         Mat mat = ImageProcessor.openSingleImage(new File(imgPath));
+
         double ratio = ((double) mat.height())/((double)mat.width());
         if(mat.width() > 1024)
             Imgproc.resize(mat, mat, new Size(1024.0, 1024.0*ratio));
+        Mat cleanMat = mat.clone();
         contourRecognizer.setContourSolidity(solidity);
         objectContours = contourRecognizer.findContours(mat, similarityThreshold);
 //        System.out.println("tova trqbva da e chisloto " + fruitHistogram.compare(objectContours, cleanMat, 0.8f)) ;
-//        objectContours = fruitHistogram.compare(objectContours, cleanMat, 0.8f);
+        objectContours = fruitHistogram.compare(objectContours, cleanMat, 0.8f);
         removeChildren(objectContours);
         return  objectContours;
     }
