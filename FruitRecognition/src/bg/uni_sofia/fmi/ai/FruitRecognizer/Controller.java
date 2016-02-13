@@ -92,7 +92,9 @@ public class Controller implements Initializable {
                     String objectName = (String)objectListView.getValue();
                     boolean foundDefault = false;
 
-                    fruitRecognizer.setSimilarityThreshold(0.05);
+//                    fruitRecognizer.setUseColorFiltering(false);
+//                    fruitRecognizer.setSolidityThreshold(0.5);
+                    fruitRecognizer.setSimilarityThreshold(0.1);
 
                     for(FruitRecognizer.EObjectName obj : FruitRecognizer.EObjectName.values())
                     {

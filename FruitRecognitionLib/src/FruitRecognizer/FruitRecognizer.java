@@ -252,7 +252,9 @@ public class FruitRecognizer {
         contourRecognizer.setContourSolidity(solidity);
         objectContours = contourRecognizer.findContours(mat, similarityThreshold);
 //        System.out.println("tova trqbva da e chisloto " + fruitHistogram.compare(objectContours, cleanMat, 0.8f)) ;
-        objectContours = fruitHistogram.compare(objectContours, cleanMat, 130);
+        if(colorFiltering) {
+            objectContours = fruitHistogram.compare(objectContours, cleanMat, colorThreshold);
+        }
         removeChildren(objectContours);
         return  objectContours;
     }
@@ -298,6 +300,18 @@ public class FruitRecognizer {
        Image result = ImageProcessor.matToImage(resultImg);
 
         return  result;
+    }
+
+    private boolean colorFiltering = true;
+    public void setUseColorFiltering(boolean enabled)
+    {
+        colorFiltering = enabled;
+    }
+
+    private int colorThreshold = 130;
+    public void setColorThreshold(int threshold)
+    {
+        colorThreshold = threshold;
     }
 
     public void setSimilarityThreshold(double threshold)
