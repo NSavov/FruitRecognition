@@ -41,7 +41,7 @@ public class ContourRecognizer {
             test.add(solidLargestContour.get(0));
             Mat mat = img.clone();
             drawContours(mat, test);
-            Imgcodecs.imwrite("./output/training/"+String.valueOf(k) + ".jpg", mat);
+//            Imgcodecs.imwrite("./output/training/"+String.valueOf(k) + ".jpg", mat);
             k++;
             templates.add(solidLargestContour.get(0));
         }
@@ -177,11 +177,6 @@ public class ContourRecognizer {
     public List<MatOfPoint> findContours(Mat img, double threshold)
     {
         List<MatOfPoint> result = new ArrayList<>();
-//        try {
-//            Thread.currentThread().sleep(5000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
         if(img == null)
             return null;
 
@@ -208,10 +203,10 @@ public class ContourRecognizer {
         Mat mat = img.clone();
         drawContours(img, contours);
 //        Imgproc.drawContours(img, contours, 0, new Scalar(0, 0, 255));
-        Imgcodecs.imwrite("./output/test2.png",img);
+//        Imgcodecs.imwrite("./output/test2.png",img);
 
         drawContours(mat, result);
-        Imgcodecs.imwrite("./output/test3.png",mat);
+//        Imgcodecs.imwrite("./output/test3.png",mat);
 
         this.img = mat;
         return result;
@@ -329,7 +324,7 @@ public class ContourRecognizer {
         for(int i=0; i<3; i++) {
             convert = new MatOfInt(i, 0);
             Core.mixChannels(src, dest, convert);
-            Imgcodecs.imwrite("./output/test4-" + String.valueOf(i) + ".jpeg", dest.get(0));
+//            Imgcodecs.imwrite("./output/test4-" + String.valueOf(i) + ".jpeg", dest.get(0));
 
             imageHSV = dest.get(0);
 //        Imgproc.GaussianBlur(imageHSV, imageHSV, new Size(5,5), 0);
@@ -350,7 +345,7 @@ public class ContourRecognizer {
 
 //        Imgproc.adaptiveThreshold(imageHSV, imageHSV, 255,Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY,7, 0);
 //        Imgproc.threshold(imageHSV,imageHSV,50,255, Imgproc.THRESH_BINARY);
-            Imgcodecs.imwrite("./output/test1-" + String.valueOf(i) + ".jpeg", imageHSV);
+//            Imgcodecs.imwrite("./output/test1-" + String.valueOf(i) + ".jpeg", imageHSV);
 
 
             List<MatOfPoint> temp = new ArrayList<MatOfPoint>();

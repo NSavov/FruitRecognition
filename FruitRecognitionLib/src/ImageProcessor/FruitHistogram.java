@@ -110,9 +110,9 @@ public class FruitHistogram {
         normalized.add(normalHist);
 //        normalized.add(imageToGray);
 //        images.add(imageToHSv);
-        Imgproc.calcHist(imageR, new MatOfInt(0), maskCroppedResized, histogramR, new MatOfInt(25), new MatOfFloat(0,140));
-        Imgproc.calcHist(imageG, new MatOfInt(1), maskCroppedResized, histogramG, new MatOfInt(25), new MatOfFloat(0,140));
-        Imgproc.calcHist(imageB, new MatOfInt(2), maskCroppedResized, histogramB, new MatOfInt(25), new MatOfFloat(0,140));
+        Imgproc.calcHist(imageR, new MatOfInt(0), maskCroppedResized, histogramR, new MatOfInt(25), new MatOfFloat(0,256));
+        Imgproc.calcHist(imageG, new MatOfInt(1), maskCroppedResized, histogramG, new MatOfInt(25), new MatOfFloat(0,256));
+        Imgproc.calcHist(imageB, new MatOfInt(2), maskCroppedResized, histogramB, new MatOfInt(25), new MatOfFloat(0,256));
         Imgproc.calcHist(normalized, new MatOfInt(0), maskCroppedResized, normalaizedHistogram, new MatOfInt(25), new MatOfFloat(0,256));
 //        Imgcodecs.imwrite("./output/training/masks/ab" + Integer.toString(counter++) + ".jpg", histogramR);
 
@@ -151,7 +151,7 @@ public class FruitHistogram {
             Core.normalize(histogram1.get(i), normhistogram1,0,1,Core.NORM_MINMAX, -1);
             Core.normalize(histogram2.get(i), normhistogram2,0,1,Core.NORM_MINMAX, -1);
 //            sum += Imgproc.compareHist(histogram1.get(i), histogram2.get(i), 0);
-             sum += Imgproc.compareHist(normhistogram1, normhistogram2, 1);
+             sum += Imgproc.compareHist(normhistogram1, normhistogram2, Imgproc.CV_COMP_CHISQR);
 //            sum = (int) Math.max(sum, Imgproc.compareHist(normhistogram1, normhistogram2, 1));
 
         }
@@ -165,11 +165,14 @@ public class FruitHistogram {
         for(MatOfPoint contur : contures) {
             List<Mat> tempHistogram = makeHistogram(contur, image);
             for (List<Mat> hist : this.histograms) {
-                maxComparement = (int) Math.min(maxComparement, compareHistograms(tempHistogram, hist));
-                if (compareHistograms(tempHistogram, hist) >= threshold) {
-                    result.add(new MatOfPoint(contur));
-                    break;
-                }
+                int value = (int) compareHistograms(tempHistogram, hist);
+                if(value >= 0)
+                    maxComparement = (int) Math.min(maxComparement, compareHistograms(tempHistogram, hist));
+
+            }
+
+            if (maxComparement <= threshold) {
+                result.add(new MatOfPoint(contur));
             }
         }
         System.out.println("Chisloto e " + maxComparement);

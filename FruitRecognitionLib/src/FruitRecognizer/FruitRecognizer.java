@@ -252,7 +252,7 @@ public class FruitRecognizer {
         contourRecognizer.setContourSolidity(solidity);
         objectContours = contourRecognizer.findContours(mat, similarityThreshold);
 //        System.out.println("tova trqbva da e chisloto " + fruitHistogram.compare(objectContours, cleanMat, 0.8f)) ;
-        objectContours = fruitHistogram.compare(objectContours, cleanMat, 0.8f);
+        objectContours = fruitHistogram.compare(objectContours, cleanMat, 130);
         removeChildren(objectContours);
         return  objectContours;
     }
